@@ -823,22 +823,31 @@
     return `A. ${currentQ.choices.A}. B. ${currentQ.choices.B}. C. ${currentQ.choices.C}.`;
   }
 
-  // 選択肢をA→B→Cの順に適切な間隔を空けて明瞭に読み上げ
+  // TOEIC本番同様に「A」→（0.6秒ポーズ）→「設問」→（1.0秒ポーズ）→「B」…と明確に区切って読み上げ
   function speakChoicesWebSpeech(callback) {
-    const list = [
-      `A. ${currentQ.choices.A}`,
-      `B. ${currentQ.choices.B}`,
-      `C. ${currentQ.choices.C}`
+    const sequence = [
+      { text: "A", delayAfter: 600 },
+      { text: currentQ.choices.A, delayAfter: 1000 },
+      { text: "B", delayAfter: 600 },
+      { text: currentQ.choices.B, delayAfter: 1000 },
+      { text: "C", delayAfter: 600 },
+      { text: currentQ.choices.C, delayAfter: 0 }
     ];
+
     let idx = 0;
     function playNext() {
-      if (idx >= list.length) {
+      if (idx >= sequence.length) {
         if (callback) callback();
         return;
       }
-      speakWebSpeech(list[idx], currentMeta.cGender, () => {
+      const item = sequence[idx];
+      speakWebSpeech(item.text, currentMeta.cGender, () => {
         idx++;
-        audioTimer = setTimeout(playNext, Math.max(400, Math.round(750 / playbackSpeed)));
+        if (item.delayAfter > 0) {
+          audioTimer = setTimeout(playNext, Math.max(300, Math.round(item.delayAfter / playbackSpeed)));
+        } else {
+          playNext();
+        }
       });
     }
     playNext();
@@ -851,7 +860,7 @@
       qAudio.playbackRate = playbackSpeed;
       activeAudio = qAudio;
       qAudio.onended = () => {
-        const delay = Math.max(300, Math.round(600 / playbackSpeed));
+        const delay = Math.max(300, Math.round(800 / playbackSpeed));
         audioTimer = setTimeout(() => {
           const cAudio = new Audio(cAudioUrl);
           cAudio.playbackRate = playbackSpeed;
@@ -862,7 +871,7 @@
       qAudio.play();
     } else {
       speakWebSpeech(currentQ.question, currentMeta.qGender, () => {
-        const delay = Math.max(300, Math.round(650 / playbackSpeed));
+        const delay = Math.max(400, Math.round(900 / playbackSpeed));
         audioTimer = setTimeout(() => {
           speakChoicesWebSpeech();
         }, delay);
@@ -954,7 +963,7 @@
 
   // Gemini API呼び出し（リトライ付き）
   async function callGemini(promptText) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`;
     const payload = {
       contents: [{ parts: [{ text: promptText }] }],
       generationConfig: { responseMimeType: "application/json" }
@@ -1228,7 +1237,7 @@ ${contextStr}
       chatHistory.push({ role: "user", parts: [{ text: userText }] });
       const recentTurns = chatHistory.slice(-6);
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
