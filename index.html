@@ -4,8 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>TOEIC AI Trainer (L&R)</title>
+  <title>TOEIC AI Mentor | Part 2 & Part 5 実戦特化演習</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <meta property="og:title" content="TOEIC AI Mentor">
+  <meta property="og:description" content="Part 2 & Part 5 実戦特化 AIラーニング">
+  <meta property="og:image" content="favicon.png">
   <style>
     :root {
       --primary: #2563eb;
@@ -620,8 +624,14 @@
 <body>
 
 <div class="container">
-  <div class="header">
-    <h1>TOEIC AI Trainer</h1>
+  <div class="header" style="display: flex; align-items: center; justify-content: center; gap: 14px; text-align: left; margin-bottom: 16px;">
+    <img src="favicon.png" alt="TOEIC AI Mentor Logo" style="width: 56px; height: 56px; border-radius: 14px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.18); border: 2px solid #ffffff; object-fit: cover;">
+    <div>
+      <h1 style="margin: 0; font-size: 24px; color: #0f172a; line-height: 1.2;">TOEIC AI Mentor</h1>
+      <div style="font-size: 13px; color: #64748b; margin-top: 4px; font-weight: 500;">
+        Part 2 & Part 5 実戦特化 AIラーニング
+      </div>
+    </div>
   </div>
 
   <!-- モード切替タブ -->
@@ -783,8 +793,8 @@
   <div class="card chat-card" id="chatCard">
     <div class="chat-header" onclick="toggleChat()">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 18px;">💬</span>
-        <strong style="font-size: 14px; color: #1e293b;">AI講師に質問する</strong>
+        <img src="favicon.png" alt="Mentor Cat" style="width: 22px; height: 22px; border-radius: 6px; object-fit: cover; vertical-align: middle;">
+        <strong style="font-size: 14px; color: #1e293b;">AI講師（キャット先生）に質問する</strong>
       </div>
       <span id="chatToggleIcon" style="font-size: 12px; color: #64748b; font-weight: 600;">開く ▼</span>
     </div>
@@ -800,7 +810,7 @@
       <!-- チャット履歴 -->
       <div class="chat-messages" id="chatMessages">
         <div class="chat-bubble ai">
-          こんにちは！TOEIC専門AIチューターです。出題中の問題で分からない点（なぜこの選択肢なのか、単語のニュアンス、文法構造など）があれば、気軽に何でも聞いてくださいね！
+          🐾 こんにちは！TOEIC AI Mentorの専任講師キャットです。問題の解法や単語のニュアンス、選択肢の引っ掛け理由など、分からないことがあれば何でも聞いてくださいね！
         </div>
       </div>
 
