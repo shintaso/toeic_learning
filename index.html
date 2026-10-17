@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>TOEIC AI Trainer (L&R)</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success: #16a34a;
+      --error: #dc2626;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #1e293b;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    .container { width: 100%; max-width: 480px; }
+    .header { text-align: center; margin-bottom: 14px; }
+    .header h1 { font-size: 20px; margin: 0; color: #334155; }
+    
+    /* モード切替タブ */
+    .mode-tabs {
+      display: flex;
+      background-color: #e2e8f0;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 12px;
+      gap: 4px;
+    }
+    .tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background-color: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+    .nav-btn:hover { background-color: #e2e8f0; }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+      margin-bottom: 14px;
+    }
+
+    /* 設定パネル */
+    .settings-card {
+      border: 1px solid #e2e8f0;
+      padding: 16px;
+      margin-bottom: 14px;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .settings-title {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 15px;
+      color: #334155;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .setting-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .setting-row label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+    }
+    .setting-row select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 13px;
+      background-color: #f8fafc;
+      color: var(--text);
+      outline: none;
+    }
+
+    /* 開始待機画面 */
+    .start-screen {
+      text-align: center;
+      padding: 28px 12px;
+    }
+    .start-icon {
+      font-size: 44px;
+      margin-bottom: 12px;
+    }
+    .start-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+    .start-desc {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+    .btn-start {
+      background-color: var(--primary);
+      color: white;
+      width: 100%;
+      max-width: 280px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+      transition: all 0.2s;
+    }
+    .btn-start:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    /* リスニング用スピードバー */
+    .speed-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 6px 12px;
+      margin-bottom: 14px;
+    }
+    .speed-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .speed-buttons {
+      display: flex;
+      gap: 4px;
+    }
+    .btn-speed {
+      background: transparent;
+      color: #64748b;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-speed:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .btn-speed.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* リーディング用問題ボックス */
+    .reading-box {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .reading-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .badge-part {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0369a1;
+      background: #e0f2fe;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .badge-difficulty {
+      font-size: 11px;
+      font-weight: 700;
+      color: #b45309;
+      background: #fef3c7;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid #fde68a;
+    }
+    .timer-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+    }
+    .reading-sentence {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #1e293b;
+      font-weight: 500;
+    }
+    .reading-blank {
+      color: var(--primary);
+      font-weight: 700;
+      background-color: #eff6ff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .btn-audio {
+      background-color: var(--primary);
+      color: white;
+      width: 100%;
+      margin-bottom: 10px;
+      transition: background-color 0.2s;
+    }
+    .btn-audio:hover { background-color: var(--primary-hover); }
+    .btn-audio.sub { background-color: #e2e8f0; color: #334155; font-size: 14px; padding: 10px; }
+    .btn-audio.sub:hover { background-color: #cbd5e1; }
+    
+    .choices { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .btn-choice { background-color: #f1f5f9; color: var(--text); text-align: left; transition: all 0.2s; }
+    .btn-choice:hover { background-color: #e2e8f0; }
+    .btn-choice.correct { background-color: #dcfce7; color: var(--success); border: 2px solid var(--success); }
+    .btn-choice.incorrect { background-color: #fee2e2; color: var(--error); border: 2px solid var(--error); }
+    
+    .result-section { display: none; margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+    .result-section.show { display: block; }
+    .script-box {
+      background-color: #f8fafc;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      border: 1px solid #e2e8f0;
+    }
+    .btn-next { background-color: #0f172a; color: white; width: 100%; margin-top: 12px; }
+    .btn-listen-again {
+      background-color: #f1f5f9;
+      color: #334155;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+      margin-bottom: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      width: auto;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-listen-again:hover { background-color: #e2e8f0; }
+    .loading { text-align: center; padding: 32px 0; color: #64748b; font-size: 15px; }
+
+    /* チャット機能 */
+    .chat-card {
+      border: 1px solid #e2e8f0;
+      padding: 16px;
+    }
+    .chat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .quick-prompts {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .btn-chip {
+      background-color: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-chip:hover {
+      background-color: #e2e8f0;
+      color: #1e293b;
+    }
+    .chat-messages {
+      max-height: 280px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 6px 0;
+      margin-bottom: 12px;
+    }
+    .chat-bubble {
+      max-width: 88%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .chat-bubble.ai {
+      align-self: flex-start;
+      background-color: #f1f5f9;
+      color: #1e293b;
+      border-bottom-left-radius: 4px;
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+      background-color: var(--primary);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-input-bar {
+      display: flex;
+      gap: 8px;
+    }
+    .chat-input-bar input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 13px;
+      outline: none;
+      background-color: #f8fafc;
+    }
+    .chat-input-bar input:focus {
+      border-color: var(--primary);
+      background-color: #ffffff;
+    }
+    .chat-input-bar button {
+      background-color: var(--primary);
+      color: white;
+      padding: 10px 16px;
+      font-size: 13px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>TOEIC AI Trainer</h1>
+  </div>
+
+  <!-- モード切替タブ -->
+  <div class="mode-tabs">
+    <button class="tab-btn active" id="tabListening" onclick="switchMode('listening')">🎧 リスニング (Part 2)</button>
+    <button class="tab-btn" id="tabReading" onclick="switchMode('reading')">📖 リーディング (Part 5)</button>
+  </div>
+
+  <div class="top-nav">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <label for="difficultySelect" style="font-size: 12px; font-weight: 600; color: #475569;">難易度:</label>
+      <select id="difficultySelect" onchange="changeDifficulty()" style="padding: 4px 8px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 12px; background: white; color: #1e293b; font-weight: 500;">
+        <option value="0">🎲 おまかせ</option>
+        <option value="1">★☆☆☆☆ 500点 (基礎)</option>
+        <option value="2">★★☆☆☆ 600点 (標準)</option>
+        <option value="3">★★★☆☆ 700点 (中級)</option>
+        <option value="4">★★★★☆ 800点 (上級)</option>
+        <option value="5">★★★★★ 900点+ (難関)</option>
+      </select>
+    </div>
+    <div style="display: flex; gap: 4px;">
+      <button class="nav-btn" onclick="toggleSettings()">⚙️ 設定</button>
+      <button class="nav-btn" onclick="promptApiKey()">🔑 APIキー</button>
+    </div>
+  </div>
+
+  <!-- 音声設定パネル -->
+  <div class="card settings-card" id="settingsCard" style="display: none;">
+    <div class="settings-title">
+      <span>⚙️ 音声設定</span>
+      <button class="nav-btn" style="padding: 2px 6px; font-size: 11px;" onclick="toggleSettings()">閉じる ✕</button>
+    </div>
+
+    <div class="setting-row">
+      <label for="speakerSelect">話者の組み合わせ（質問 / 選択肢）:</label>
+      <select id="speakerSelect" onchange="saveVoiceSettings()">
+        <option value="female_male">👫 質問: 女性 / 選択肢: 男性（推奨）</option>
+        <option value="male_female">👬 質問: 男性 / 選択肢: 女性</option>
+        <option value="random">🎲 出題ごとに入れ替え</option>
+      </select>
+    </div>
+
+    <div class="setting-row">
+      <label for="engineSelect">音声合成エンジン:</label>
+      <select id="engineSelect" onchange="saveVoiceSettings()">
+        <option value="webspeech">💻 ブラウザ標準音声（回数無制限・推奨）</option>
+        <option value="gemini">🤖 Gemini AI Studio音声（スタジオ品質・1日10回制限あり）</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card" id="mainCard">
+    <!-- 開始待機画面（タブ切替時・初回時は自動生成せず、ユーザーが押した時のみ生成） -->
+    <div id="startScreen" class="start-screen">
+      <div class="start-icon" id="startIcon">🎧</div>
+      <div class="start-title" id="startTitle">リスニング演習 (Part 2)</div>
+      <div class="start-desc" id="startDesc">
+        「開始」ボタンを押すと、Geminiが新しい問題とネイティブ音声を生成します。
+      </div>
+      <button class="btn-start" onclick="generateNewQuestion()">▶ 問題を開始する</button>
+    </div>
+
+    <!-- ローディング表示 -->
+    <div id="loading" class="loading" style="display: none;">
+      Geminiが問題を作成中...
+    </div>
+
+    <!-- 問題演習エリア -->
+    <div id="quizArea" style="display: none;">
+      <!-- [リスニング専用エリア] -->
+      <div id="listeningArea">
+        <div class="speed-bar">
+          <span class="speed-label">速度:</span>
+          <div class="speed-buttons">
+            <button type="button" class="btn-speed" onclick="setSpeed(0.8)">0.8x</button>
+            <button type="button" class="btn-speed" onclick="setSpeed(0.9)">0.9x</button>
+            <button type="button" class="btn-speed" onclick="setSpeed(1.0)">1.0x</button>
+            <button type="button" class="btn-speed" onclick="setSpeed(1.1)">1.1x</button>
+            <button type="button" class="btn-speed" onclick="setSpeed(1.2)">1.2x</button>
+          </div>
+        </div>
+
+        <button class="btn-audio" id="btnPlayAll" onclick="playAll()">▶ すべて通して聴く</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-audio sub" style="flex: 1;" onclick="playQuestion()">質問のみ</button>
+          <button class="btn-audio sub" style="flex: 1;" onclick="playChoices()">選択肢のみ</button>
+        </div>
+      </div>
+
+      <!-- [リーディング専用エリア: Part 5 短文穴埋め] -->
+      <div id="readingArea" style="display: none;">
+        <div class="reading-box">
+          <div class="reading-meta">
+            <span class="badge-part">Part 5 短文穴埋め</span>
+            <span id="readingTimer" class="timer-badge">⏱️ 0s (目標: 20s以内)</span>
+          </div>
+          <div class="reading-sentence" id="readingSentence"></div>
+        </div>
+      </div>
+
+      <!-- 選択肢エリア (A〜C: リスニング / A〜D: リーディング) -->
+      <div class="choices">
+        <button class="btn-choice" id="choiceA" onclick="checkAnswer('A')">(A)</button>
+        <button class="btn-choice" id="choiceB" onclick="checkAnswer('B')">(B)</button>
+        <button class="btn-choice" id="choiceC" onclick="checkAnswer('C')">(C)</button>
+        <button class="btn-choice" id="choiceD" style="display: none;" onclick="checkAnswer('D')">(D)</button>
+      </div>
+
+      <!-- スクリプト＆解説 -->
+      <div class="result-section" id="resultArea">
+        <h3 id="verdict" style="margin-top: 0;"></h3>
+        <div class="script-box" id="scriptBox"></div>
+        <button class="btn-next" onclick="generateNewQuestion()">次の問題を生成 ➔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI講師への質問チャット欄 -->
+  <div class="card chat-card" id="chatCard">
+    <div class="chat-header" onclick="toggleChat()">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 18px;">💬</span>
+        <strong style="font-size: 14px; color: #1e293b;">AI講師に質問する</strong>
+      </div>
+      <span id="chatToggleIcon" style="font-size: 12px; color: #64748b; font-weight: 600;">開く ▼</span>
+    </div>
+    
+    <div id="chatBody" style="display: none; margin-top: 14px;">
+      <!-- クイック質問チップ -->
+      <div class="quick-prompts">
+        <button type="button" class="btn-chip" onclick="sendQuickPrompt('この問題の正解と不正解の詳しい理由を教えてください')">💡 なぜこの答え？</button>
+        <button type="button" class="btn-chip" onclick="sendQuickPrompt('この問題に出てきた重要単語やイディオムをまとめて')">📝 重要単語まとめ</button>
+        <button type="button" class="btn-chip" onclick="sendQuickPrompt('この文法のポイントと、似たような例文を2つ作ってください')">🔄 類似の例文</button>
+      </div>
+
+      <!-- チャット履歴 -->
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-bubble ai">
+          こんにちは！TOEIC専門AIチューターです。出題中の問題で分からない点（なぜこの選択肢なのか、単語のニュアンス、文法構造など）があれば、気軽に何でも聞いてくださいね！
+        </div>
+      </div>
+
+      <!-- 入力欄 -->
+      <div class="chat-input-bar">
+        <input type="text" id="chatInput" placeholder="質問を入力（例: なぜBは不正解？）" onkeydown="if(event.key==='Enter') sendChatMessage()">
+        <button type="button" id="btnSendChat" onclick="sendChatMessage()">送信</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let apiKey = localStorage.getItem("GEMINI_API_KEY") || "";
+  let currentMode = localStorage.getItem("TOEIC_MODE") || "listening"; // 'listening' | 'reading'
+  let selectedDifficulty = localStorage.getItem("TOEIC_DIFFICULTY") || "0"; // '0'おまかせ, '1'〜'5'
+  
+  // モードごとの問題キャッシュ
+  let cachedListeningQ = null;
+  let cachedReadingQ = null;
+  let currentQ = null;
+  let answered = false;
+
+  // チャット会話履歴
+  let chatHistory = [];
+  let isChatOpen = false;
+
+  // リーディング用タイマー
+  let readingTimerInterval = null;
+  let readingSeconds = 0;
+
+  // リーディング復習音声キャッシュ & 多重再生防止
+  let readingReviewAudioUrl = null;
+  let isReviewAudioLoading = false;
+  let reviewTextClean = "";
+
+  // 再生速度（デフォルト: 1.0）
+  let playbackSpeed = parseFloat(localStorage.getItem("TOEIC_PLAYBACK_SPEED") || "1.0");
+
+  // 音声設定（無制限に利用できるよう webspeech をデフォルトに設定）
+  let voiceSettings = {
+    speakerPair: "female_male",
+    engine: "webspeech"
+  };
+
+  try {
+    const saved = localStorage.getItem("TOEIC_VOICE_CONFIG");
+    if (saved) {
+      voiceSettings = Object.assign(voiceSettings, JSON.parse(saved));
+    }
+  } catch (e) {}
+
+  const FEMALE_VOICES = ["Kore", "Aoede", "Leda"];
+  const MALE_VOICES = ["Puck", "Charon", "Fenrir"];
+
+  let currentMeta = {
+    qGender: "female",
+    qVoice: "Kore",
+    cGender: "male",
+    cVoice: "Puck"
+  };
+
+  let qAudioUrl = null;
+  let cAudioUrl = null;
+  let activeAudio = null;
+  let audioTimer = null;
+
+  function initSettingsUI() {
+    document.getElementById("speakerSelect").value = voiceSettings.speakerPair;
+    document.getElementById("engineSelect").value = voiceSettings.engine;
+    document.getElementById("difficultySelect").value = selectedDifficulty;
+    updateSpeedUI();
+    updateModeUI();
+  }
+
+  function changeDifficulty() {
+    selectedDifficulty = document.getElementById("difficultySelect").value;
+    localStorage.setItem("TOEIC_DIFFICULTY", selectedDifficulty);
+  }
+
+  function updateModeUI() {
+    const isListening = currentMode === "listening";
+    document.getElementById("tabListening").classList.toggle("active", isListening);
+    document.getElementById("tabReading").classList.toggle("active", !isListening);
+    document.getElementById("listeningArea").style.display = isListening ? "block" : "none";
+    document.getElementById("readingArea").style.display = isListening ? "none" : "block";
+    document.getElementById("choiceD").style.display = isListening ? "none" : "block";
+
+    // スタート画面のテキスト更新
+    if (isListening) {
+      document.getElementById("startIcon").textContent = "🎧";
+      document.getElementById("startTitle").textContent = "リスニング演習 (Part 2)";
+      document.getElementById("startDesc").textContent = "「開始」ボタンを押すと、Geminiが新しい問題とネイティブ音声を生成します。";
+    } else {
+      document.getElementById("startIcon").textContent = "📖";
+      document.getElementById("startTitle").textContent = "リーディング演習 (Part 5)";
+      document.getElementById("startDesc").textContent = "「開始」ボタンを押すと、短文穴埋め問題を作成します。";
+    }
+  }
+
+  // タブ切り替え（自動でAPIは呼ばず、既存問題があれば表示、なければ開始画面を表示）
+  function switchMode(mode) {
+    if (currentMode === mode) return;
+    stopAudio();
+    stopReadingTimer();
+    currentMode = mode;
+    localStorage.setItem("TOEIC_MODE", mode);
+    updateModeUI();
+
+    const cached = mode === "listening" ? cachedListeningQ : cachedReadingQ;
+    if (cached) {
+      currentQ = cached;
+      document.getElementById("startScreen").style.display = "none";
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("quizArea").style.display = "block";
+    } else {
+      currentQ = null;
+      document.getElementById("startScreen").style.display = "block";
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("quizArea").style.display = "none";
+    }
+  }
+
+  function saveVoiceSettings() {
+    voiceSettings.speakerPair = document.getElementById("speakerSelect").value;
+    voiceSettings.engine = document.getElementById("engineSelect").value;
+    localStorage.setItem("TOEIC_VOICE_CONFIG", JSON.stringify(voiceSettings));
+  }
+
+  function setSpeed(speed) {
+    playbackSpeed = speed;
+    localStorage.setItem("TOEIC_PLAYBACK_SPEED", speed.toString());
+    updateSpeedUI();
+    if (activeAudio) {
+      activeAudio.playbackRate = playbackSpeed;
+    }
+  }
+
+  function updateSpeedUI() {
+    document.querySelectorAll(".btn-speed").forEach(btn => {
+      const s = parseFloat(btn.textContent);
+      if (Math.abs(s - playbackSpeed) < 0.05) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
+  }
+
+  function toggleSettings() {
+    const card = document.getElementById("settingsCard");
+    card.style.display = card.style.display === "none" ? "block" : "none";
+  }
+
+  function toggleChat() {
+    isChatOpen = !isChatOpen;
+    document.getElementById("chatBody").style.display = isChatOpen ? "block" : "none";
+    document.getElementById("chatToggleIcon").textContent = isChatOpen ? "閉じる ▲" : "開く ▼";
+  }
+
+  function promptApiKey() {
+    const key = prompt("Google AI Studioで取得したAPIキーを入力してください:", apiKey);
+    if (key !== null && key.trim() !== "") {
+      apiKey = key.trim();
+      localStorage.setItem("GEMINI_API_KEY", apiKey);
+    }
+  }
+
+  function resolveSpeakers() {
+    let qGender = "female";
+    let cGender = "male";
+
+    if (voiceSettings.speakerPair === "male_female") {
+      qGender = "male";
+      cGender = "female";
+    } else if (voiceSettings.speakerPair === "random") {
+      if (Math.random() > 0.5) {
+        qGender = "male";
+        cGender = "female";
+      }
+    }
+
+    const qVoice = qGender === "female"
+      ? FEMALE_VOICES[Math.floor(Math.random() * FEMALE_VOICES.length)]
+      : MALE_VOICES[Math.floor(Math.random() * MALE_VOICES.length)];
+      
+    const cVoice = cGender === "female"
+      ? FEMALE_VOICES[Math.floor(Math.random() * FEMALE_VOICES.length)]
+      : MALE_VOICES[Math.floor(Math.random() * MALE_VOICES.length)];
+
+    currentMeta = { qGender, qVoice, cGender, cVoice };
+  }
+
+  // Gemini Flash TTS 音声取得
+  async function fetchGeminiTTS(text, voiceName) {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash-tts:generateContent?key=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: text }] }],
+        generationConfig: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName }
+            }
+          }
+        }
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `TTS failed: ${res.status}`);
+    }
+    const data = await res.json();
+    const part = data.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+    if (!part?.data) throw new Error("No audio returned from Gemini TTS");
+    return `data:${part.mimeType || 'audio/wav'};base64,${part.data}`;
+  }
+
+  // Web Speech API
+  function speakWebSpeech(text, gender, callback) {
+    window.speechSynthesis.cancel();
+    const uttr = new SpeechSynthesisUtterance(text);
+    uttr.rate = playbackSpeed;
+    const voices = window.speechSynthesis.getVoices();
+    const matched = voices.filter(v => v.lang.toLowerCase().startsWith('en'));
+    if (matched.length > 0) {
+      if (gender === 'female') {
+        const f = matched.find(v => /female|samantha|karen|victoria|moira|fiona|zira|susan|stephanie/i.test(v.name));
+        uttr.voice = f || matched[0];
+      } else {
+        const m = matched.find(v => /male|daniel|george|david|alex|oliver|tom|richard/i.test(v.name));
+        uttr.voice = m || matched[matched.length - 1];
+      }
+    } else {
+      uttr.lang = 'en-US';
+    }
+    if (callback) uttr.onend = callback;
+    window.speechSynthesis.speak(uttr);
+  }
+
+  function stopAudio() {
+    if (audioTimer) {
+      clearTimeout(audioTimer);
+      audioTimer = null;
+    }
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio.currentTime = 0;
+      activeAudio = null;
+    }
+    window.speechSynthesis.cancel();
+  }
+
+  function startReadingTimer() {
+    stopReadingTimer();
+    readingSeconds = 0;
+    const timerElem = document.getElementById("readingTimer");
+    timerElem.textContent = "⏱️ 0s (目標: 20s以内)";
+    readingTimerInterval = setInterval(() => {
+      readingSeconds++;
+      timerElem.textContent = `⏱️ ${readingSeconds}s (目標: 20s以内)`;
+    }, 1000);
+  }
+
+  function stopReadingTimer() {
+    if (readingTimerInterval) {
+      clearInterval(readingTimerInterval);
+      readingTimerInterval = null;
+    }
+  }
+
+  function getChoicesText() {
+    return `(A) ${currentQ.choices.A}, (B) ${currentQ.choices.B}, (C) ${currentQ.choices.C}`;
+  }
+
+  function playAll() {
+    stopAudio();
+    if (voiceSettings.engine === "gemini" && qAudioUrl && cAudioUrl) {
+      const qAudio = new Audio(qAudioUrl);
+      qAudio.playbackRate = playbackSpeed;
+      activeAudio = qAudio;
+      qAudio.onended = () => {
+        const delay = Math.max(300, Math.round(600 / playbackSpeed));
+        audioTimer = setTimeout(() => {
+          const cAudio = new Audio(cAudioUrl);
+          cAudio.playbackRate = playbackSpeed;
+          activeAudio = cAudio;
+          cAudio.play();
+        }, delay);
+      };
+      qAudio.play();
+    } else {
+      speakWebSpeech(currentQ.question, currentMeta.qGender, () => {
+        const delay = Math.max(300, Math.round(600 / playbackSpeed));
+        audioTimer = setTimeout(() => {
+          speakWebSpeech(getChoicesText(), currentMeta.cGender);
+        }, delay);
+      });
+    }
+  }
+
+  function playQuestion() {
+    stopAudio();
+    if (voiceSettings.engine === "gemini" && qAudioUrl) {
+      const qAudio = new Audio(qAudioUrl);
+      qAudio.playbackRate = playbackSpeed;
+      activeAudio = qAudio;
+      qAudio.play();
+    } else {
+      speakWebSpeech(currentQ.question, currentMeta.qGender);
+    }
+  }
+
+  function playChoices() {
+    stopAudio();
+    if (voiceSettings.engine === "gemini" && cAudioUrl) {
+      const cAudio = new Audio(cAudioUrl);
+      cAudio.playbackRate = playbackSpeed;
+      activeAudio = cAudio;
+      cAudio.play();
+    } else {
+      speakWebSpeech(getChoicesText(), currentMeta.cGender);
+    }
+  }
+
+  // リーディング復習用（話者固定 Kore、キャッシュで1度だけダウンロード、多重再生防止）
+  async function playSentenceAudio() {
+    stopAudio();
+    if (!reviewTextClean) return;
+
+    // 既にキャッシュがあれば即時再生
+    if (readingReviewAudioUrl) {
+      const audio = new Audio(readingReviewAudioUrl);
+      audio.playbackRate = playbackSpeed;
+      activeAudio = audio;
+      audio.play();
+      return;
+    }
+
+    if (isReviewAudioLoading) return;
+    isReviewAudioLoading = true;
+
+    const btn = document.getElementById("btnReviewAudio");
+    if (btn) btn.textContent = "⏳ 音声読み込み中...";
+
+    try {
+      if (voiceSettings.engine === "gemini") {
+        readingReviewAudioUrl = await fetchGeminiTTS(reviewTextClean, "Kore");
+        stopAudio();
+        const audio = new Audio(readingReviewAudioUrl);
+        audio.playbackRate = playbackSpeed;
+        activeAudio = audio;
+        audio.play();
+      } else {
+        speakWebSpeech(reviewTextClean, "female");
+      }
+    } catch (e) {
+      console.warn("TTS fallback", e);
+      speakWebSpeech(reviewTextClean, "female");
+    } finally {
+      isReviewAudioLoading = false;
+      if (btn) btn.textContent = "🔊 音声で復習する";
+    }
+  }
+
+  // 難易度に応じたプロンプト指示の生成
+  function getDifficultyPromptText() {
+    switch (selectedDifficulty) {
+      case "1":
+        return `Target Level: Level 1 (TOEIC 500 target). Use foundational high-frequency vocabulary and simple grammatical patterns. Avoid deceptive tricks. Set "difficulty": 1, "difficulty_label": "★☆☆☆☆ (500点レベル)".`;
+      case "2":
+        return `Target Level: Level 2 (TOEIC 600 target). Use standard everyday business vocabulary and common sentence structures. Set "difficulty": 2, "difficulty_label": "★★☆☆☆ (600点レベル)".`;
+      case "3":
+        return `Target Level: Level 3 (TOEIC 700 target). Moderate difficulty with typical distractors and standard workplace situations. Set "difficulty": 3, "difficulty_label": "★★★☆☆ (700点レベル)".`;
+      case "4":
+        return `Target Level: Level 4 (TOEIC 800 target). Advanced business vocabulary, nuanced collocations, or indirect responses. Set "difficulty": 4, "difficulty_label": "★★★★☆ (800点レベル)".`;
+      case "5":
+        return `Target Level: Level 5 (TOEIC 900+ target). Highly challenging, idiomatic or sophisticated vocabulary, subtle distractor traps. Set "difficulty": 5, "difficulty_label": "★★★★★ (900点+レベル)".`;
+      default:
+        return `Target Level: Choose a balanced level between Level 1 and Level 5 suitable for realistic TOEIC preparation. Set "difficulty": (1-5), "difficulty_label": "(★表記と目標点数)".`;
+    }
+  }
+
+  // Gemini API呼び出し（リトライ付き）
+  async function callGemini(promptText) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+    const payload = {
+      contents: [{ parts: [{ text: promptText }] }],
+      generationConfig: { responseMimeType: "application/json" }
+    };
+
+    let res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.status === 503 || res.status === 429) {
+      await new Promise(r => setTimeout(r, 1500));
+      res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error?.message || `HTTP ${res.status}: APIリクエストに失敗しました`);
+    }
+    return JSON.parse(data.candidates[0].content.parts[0].text);
+  }
+
+  // 「開始」または「次へ」の明示的なクリック時のみ実行される
+  async function generateNewQuestion() {
+    if (!apiKey) {
+      promptApiKey();
+      return;
+    }
+
+    stopAudio();
+    stopReadingTimer();
+    qAudioUrl = null;
+    cAudioUrl = null;
+    readingReviewAudioUrl = null;
+    isReviewAudioLoading = false;
+    reviewTextClean = "";
+
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("quizArea").style.display = "none";
+    document.getElementById("resultArea").classList.remove("show");
+
+    const loadingElem = document.getElementById("loading");
+    loadingElem.style.display = "block";
+    loadingElem.textContent = currentMode === "listening"
+      ? "Geminiがリスニング問題(Part 2)を作成中..."
+      : "Geminiがリーディング問題(Part 5)を作成中...";
+
+    ['A', 'B', 'C', 'D'].forEach(c => {
+      const btn = document.getElementById(`choice${c}`);
+      if (btn) btn.className = "btn-choice";
+    });
+    answered = false;
+
+    resolveSpeakers();
+
+    try {
+      if (currentMode === "listening") {
+        const promptText = `
+          You are an expert TOEIC test maker. Create ONE Part 2 (Question-Response) item in business context.
+          ${getDifficultyPromptText()}
+          Output ONLY a pure JSON without markdown codeblock:
+          {
+            "question": "English question text",
+            "choices": { "A": "...", "B": "...", "C": "..." },
+            "answer": "A or B or C",
+            "difficulty": 1,
+            "difficulty_label": "★★☆☆☆ (600点レベル)",
+            "trans_q": "Japanese translation of question",
+            "trans_choices": { "A": "...", "B": "...", "C": "..." },
+            "explanation": "Japanese concise explanation highlighting key words and distractor traps"
+          }
+        `;
+
+        currentQ = await callGemini(promptText);
+        cachedListeningQ = currentQ;
+
+        document.getElementById("choiceA").textContent = "(A)";
+        document.getElementById("choiceB").textContent = "(B)";
+        document.getElementById("choiceC").textContent = "(C)";
+
+        if (voiceSettings.engine === "gemini") {
+          loadingElem.textContent = "🎙️ ネイティブ音声を生成中...";
+          try {
+            const choicesText = getChoicesText();
+            const [qAudio, cAudio] = await Promise.all([
+              fetchGeminiTTS(currentQ.question, currentMeta.qVoice),
+              fetchGeminiTTS(choicesText, currentMeta.cVoice)
+            ]);
+            qAudioUrl = qAudio;
+            cAudioUrl = cAudio;
+          } catch (ttsErr) {
+            console.warn("TTS失敗、ブラウザ音声へフォールバック:", ttsErr);
+          }
+        }
+
+        loadingElem.style.display = "none";
+        document.getElementById("quizArea").style.display = "block";
+        playAll();
+
+      } else {
+        const promptText = `
+          You are an expert TOEIC test maker. Create ONE Part 5 (Incomplete Sentences) question in a professional business context.
+          Include a sentence with a blank marked as "________". Provide 4 choices (A, B, C, D) testing grammar, parts of speech, vocabulary, or prepositions with realistic distractors.
+          ${getDifficultyPromptText()}
+          Output ONLY a pure JSON without markdown:
+          {
+            "sentence": "English sentence with ________ blank",
+            "choices": { "A": "...", "B": "...", "C": "...", "D": "..." },
+            "answer": "A, B, C, or D",
+            "category": "語彙 / 品詞 / 文法 / 前置詞 etc.",
+            "difficulty": 2,
+            "difficulty_label": "★★☆☆☆ (600点レベル)",
+            "trans": "Japanese natural translation with correct answer filled in",
+            "explanation": "Clear Japanese explanation detailing why the answer is correct and why other choices are incorrect"
+          }
+        `;
+
+        currentQ = await callGemini(promptText);
+        cachedReadingQ = currentQ;
+
+        const styledSentence = currentQ.sentence.replace("________", '<span class="reading-blank">&nbsp;________&nbsp;</span>');
+        document.getElementById("readingSentence").innerHTML = styledSentence;
+
+        document.getElementById("choiceA").textContent = `(A) ${currentQ.choices.A}`;
+        document.getElementById("choiceB").textContent = `(B) ${currentQ.choices.B}`;
+        document.getElementById("choiceC").textContent = `(C) ${currentQ.choices.C}`;
+        document.getElementById("choiceD").textContent = `(D) ${currentQ.choices.D}`;
+
+        loadingElem.style.display = "none";
+        document.getElementById("quizArea").style.display = "block";
+        startReadingTimer();
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert(`問題の取得に失敗しました:\n${err.message}`);
+      loadingElem.style.display = "none";
+      document.getElementById("startScreen").style.display = "block";
+    }
+  }
+
+  function checkAnswer(selected) {
+    if (answered) return;
+    answered = true;
+    stopReadingTimer();
+
+    const isCorrect = selected === currentQ.answer;
+    const verdict = document.getElementById("verdict");
+    verdict.textContent = isCorrect ? "🎉 正解！" : `❌ 不正解... (正解: ${currentQ.answer})`;
+    verdict.style.color = isCorrect ? "var(--success)" : "var(--error)";
+
+    document.getElementById(`choice${selected}`).classList.add(isCorrect ? "correct" : "incorrect");
+    if (!isCorrect) {
+      document.getElementById(`choice${currentQ.answer}`).classList.add("correct");
+    }
+
+    const scriptBox = document.getElementById("scriptBox");
+    const diffBadge = currentQ.difficulty_label ? `<span class="badge-difficulty">難易度: ${currentQ.difficulty_label}</span>` : "";
+
+    if (currentMode === "listening") {
+      scriptBox.innerHTML = `
+        <div style="margin-bottom: 8px;">
+          ${diffBadge}
+        </div>
+        <strong>【問題文】</strong><br>
+        <span>${currentQ.question}</span><br>
+        <small style="color: #64748b;">${currentQ.trans_q}</small><br><br>
+        <strong>【選択肢】</strong><br>
+        (A) ${currentQ.choices.A} <span style="color:#64748b;">(${currentQ.trans_choices.A})</span><br>
+        (B) ${currentQ.choices.B} <span style="color:#64748b;">(${currentQ.trans_choices.B})</span><br>
+        (C) ${currentQ.choices.C} <span style="color:#64748b;">(${currentQ.trans_choices.C})</span><br><br>
+        <strong>【解説】</strong><br>
+        <span>${currentQ.explanation}</span>
+      `;
+    } else {
+      const completedSentence = currentQ.sentence.replace("________", `<strong>${currentQ.choices[currentQ.answer]}</strong>`);
+      reviewTextClean = currentQ.sentence.replace("________", currentQ.choices[currentQ.answer]);
+      const paceEvaluation = readingSeconds <= 20 ? "🎉 目標20秒以内達成！" : "💡 本番は20秒以内を目指しましょう";
+
+      scriptBox.innerHTML = `
+        <div style="margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+          <span class="badge-part">${currentQ.category || '文法・語彙'}</span>
+          ${diffBadge}
+          <span style="font-size: 12px; color: #64748b; margin-left: auto;">⏱️ ${readingSeconds}秒 (${paceEvaluation})</span>
+        </div>
+        <strong>【完成文】</strong><br>
+        <span style="font-size: 15px;">${completedSentence}</span><br>
+        <button type="button" class="btn-listen-again" id="btnReviewAudio" onclick="playSentenceAudio()">🔊 音声で復習する</button><br><br>
+        <strong>【日本語訳】</strong><br>
+        <span style="color: #334155;">${currentQ.trans}</span><br><br>
+        <strong>【選択肢の意味】</strong><br>
+        (A) ${currentQ.choices.A}<br>
+        (B) ${currentQ.choices.B}<br>
+        (C) ${currentQ.choices.C}<br>
+        (D) ${currentQ.choices.D}<br><br>
+        <strong>【解説】</strong><br>
+        <span>${currentQ.explanation}</span>
+      `;
+    }
+
+    document.getElementById("resultArea").classList.add("show");
+  }
+
+  // --- AI講師チャット機能 ---
+  function appendChatBubble(role, text, id) {
+    const container = document.getElementById("chatMessages");
+    const bubble = document.createElement("div");
+    bubble.className = `chat-bubble ${role}`;
+    if (id) bubble.id = id;
+    bubble.innerHTML = text.replace(/\n/g, "<br>");
+    container.appendChild(bubble);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function sendQuickPrompt(promptText) {
+    if (!isChatOpen) toggleChat();
+    sendChatMessage(promptText);
+  }
+
+  async function sendChatMessage(customText) {
+    if (!apiKey) {
+      promptApiKey();
+      return;
+    }
+    const input = document.getElementById("chatInput");
+    const userText = (customText || input.value).trim();
+    if (!userText) return;
+
+    if (!customText) input.value = "";
+
+    appendChatBubble("user", userText);
+
+    let contextStr = "現在出題中の問題はありません。TOEIC全般の学習相談として回答してください。";
+    if (currentQ) {
+      if (currentMode === "listening") {
+        contextStr = `【現在出題中のTOEIC Part 2 リスニング問題】
+難易度: ${currentQ.difficulty_label || ''}
+質問: ${currentQ.question} (訳: ${currentQ.trans_q})
+選択肢:
+(A) ${currentQ.choices.A} (訳: ${currentQ.trans_choices.A})
+(B) ${currentQ.choices.B} (訳: ${currentQ.trans_choices.B})
+(C) ${currentQ.choices.C} (訳: ${currentQ.trans_choices.C})
+正解: (${currentQ.answer})
+解説: ${currentQ.explanation}`;
+      } else {
+        contextStr = `【現在出題中のTOEIC Part 5 リーディング問題】
+難易度: ${currentQ.difficulty_label || ''}
+問題文: ${currentQ.sentence}
+選択肢: (A) ${currentQ.choices.A}, (B) ${currentQ.choices.B}, (C) ${currentQ.choices.C}, (D) ${currentQ.choices.D}
+正解: (${currentQ.answer})
+全訳: ${currentQ.trans}
+カテゴリ: ${currentQ.category || '文法・語彙'}
+解説: ${currentQ.explanation}`;
+      }
+    }
+
+    const systemPrompt = `あなたは親切で分かりやすいTOEIC専門のプロAI講師です。
+生徒（学習者）からの質問に対して、丁寧かつ端的に分かりやすく日本語で回答してください。
+${contextStr}
+回答は親しみやすく、かつTOEICスコアアップに直結するアドバイス（品詞の見分け方、コロケーション、消去法のコツなど）を含めてください。`;
+
+    const thinkingId = "thinking-" + Date.now();
+    appendChatBubble("ai", "考え中...", thinkingId);
+
+    try {
+      chatHistory.push({ role: "user", parts: [{ text: userText }] });
+      const recentTurns = chatHistory.slice(-6);
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: recentTurns
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error?.message || "チャットの応答に失敗しました");
+      }
+
+      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "うまく回答を取得できませんでした。";
+      chatHistory.push({ role: "model", parts: [{ text: reply }] });
+
+      const elem = document.getElementById(thinkingId);
+      if (elem) elem.innerHTML = reply.replace(/\n/g, "<br>");
+
+      const container = document.getElementById("chatMessages");
+      container.scrollTop = container.scrollHeight;
+
+    } catch (err) {
+      console.error(err);
+      const elem = document.getElementById(thinkingId);
+      if (elem) elem.textContent = `エラーが発生しました: ${err.message}`;
+    }
+  }
+
+  // 初回起動
+  window.onload = () => {
+    initSettingsUI();
+  };
+</script>
+</body>
+</html>
