@@ -820,7 +820,28 @@
   }
 
   function getChoicesText() {
-    return `(A) ${currentQ.choices.A}, (B) ${currentQ.choices.B}, (C) ${currentQ.choices.C}`;
+    return `A. ${currentQ.choices.A}. B. ${currentQ.choices.B}. C. ${currentQ.choices.C}.`;
+  }
+
+  // 選択肢をA→B→Cの順に適切な間隔を空けて明瞭に読み上げ
+  function speakChoicesWebSpeech(callback) {
+    const list = [
+      `A. ${currentQ.choices.A}`,
+      `B. ${currentQ.choices.B}`,
+      `C. ${currentQ.choices.C}`
+    ];
+    let idx = 0;
+    function playNext() {
+      if (idx >= list.length) {
+        if (callback) callback();
+        return;
+      }
+      speakWebSpeech(list[idx], currentMeta.cGender, () => {
+        idx++;
+        audioTimer = setTimeout(playNext, Math.max(400, Math.round(750 / playbackSpeed)));
+      });
+    }
+    playNext();
   }
 
   function playAll() {
@@ -841,9 +862,9 @@
       qAudio.play();
     } else {
       speakWebSpeech(currentQ.question, currentMeta.qGender, () => {
-        const delay = Math.max(300, Math.round(600 / playbackSpeed));
+        const delay = Math.max(300, Math.round(650 / playbackSpeed));
         audioTimer = setTimeout(() => {
-          speakWebSpeech(getChoicesText(), currentMeta.cGender);
+          speakChoicesWebSpeech();
         }, delay);
       });
     }
@@ -869,7 +890,7 @@
       activeAudio = cAudio;
       cAudio.play();
     } else {
-      speakWebSpeech(getChoicesText(), currentMeta.cGender);
+      speakChoicesWebSpeech();
     }
   }
 
