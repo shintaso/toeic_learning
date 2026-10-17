@@ -10,6 +10,7 @@
   <meta property="og:title" content="TOEIC AI Mentor">
   <meta property="og:description" content="Part 2 & Part 5 実戦特化 AIラーニング">
   <meta property="og:image" content="favicon.png">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root {
       --primary: #2563eb;
@@ -67,20 +68,54 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
+      gap: 8px;
+    }
+    .top-nav-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 1;
+      min-width: 0;
+    }
+    .top-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
     }
     .nav-btn {
-      background: none;
-      border: none;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
       padding: 6px 10px;
-      font-size: 13px;
-      color: var(--primary);
+      font-size: 12px;
+      color: #334155;
       cursor: pointer;
-      font-weight: 500;
+      font-weight: 600;
       border-radius: 8px;
-      transition: background-color 0.2s;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
-    .nav-btn:hover { background-color: #e2e8f0; }
+    .nav-btn:hover { background-color: #e2e8f0; color: #0f172a; }
+    .nav-icon-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .nav-icon-btn:hover { background-color: #e2e8f0; }
 
     .card {
       background: var(--card);
@@ -351,33 +386,102 @@
       color: #1e293b;
     }
     .chat-messages {
-      max-height: 280px;
+      max-height: 380px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      padding: 6px 0;
+      gap: 14px;
+      padding: 14px 12px;
+      background-color: #7b96b2; /* LINE風の落ち着いたトークルーム背景 */
+      border-radius: 14px;
       margin-bottom: 12px;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+    .chat-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .chat-row.ai {
+      justify-content: flex-start;
+    }
+    .chat-row.user {
+      justify-content: flex-end;
+    }
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+      border: 2px solid #ffffff;
+      flex-shrink: 0;
+    }
+    .chat-col {
+      display: flex;
+      flex-direction: column;
+      max-width: 78%;
+    }
+    .chat-row.ai .chat-col {
+      align-items: flex-start;
+    }
+    .chat-row.user .chat-col {
+      align-items: flex-end;
+    }
+    .chat-sender-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: #ffffff;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+      margin-bottom: 4px;
+      padding: 0 4px;
     }
     .chat-bubble {
-      max-width: 88%;
       padding: 10px 14px;
-      border-radius: 14px;
+      border-radius: 18px;
       font-size: 13px;
-      line-height: 1.5;
+      line-height: 1.55;
       word-break: break-word;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+      position: relative;
     }
-    .chat-bubble.ai {
-      align-self: flex-start;
-      background-color: #f1f5f9;
+    .chat-row.ai .chat-bubble {
+      background-color: #ffffff;
       color: #1e293b;
-      border-bottom-left-radius: 4px;
+      border-top-left-radius: 4px;
     }
-    .chat-bubble.user {
-      align-self: flex-end;
-      background-color: var(--primary);
-      color: #ffffff;
-      border-bottom-right-radius: 4px;
+    .chat-row.user .chat-bubble {
+      background-color: #85e249; /* LINE風の爽やかな黄緑 */
+      color: #0f172a;
+      border-top-right-radius: 4px;
+    }
+    .chat-bubble p {
+      margin: 0 0 6px 0;
+    }
+    .chat-bubble p:last-child {
+      margin-bottom: 0;
+    }
+    .chat-bubble ul, .chat-bubble ol {
+      margin: 4px 0 6px 18px;
+      padding: 0;
+    }
+    .chat-bubble li {
+      margin-bottom: 3px;
+    }
+    .chat-bubble strong {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .chat-row.user .chat-bubble strong {
+      color: #042f2e;
+    }
+    .chat-bubble code {
+      background: rgba(0, 0, 0, 0.08);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
     }
     .chat-input-bar {
       display: flex;
@@ -641,9 +745,9 @@
   </div>
 
   <div class="top-nav">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <label for="difficultySelect" style="font-size: 12px; font-weight: 600; color: #475569;">難易度:</label>
-      <select id="difficultySelect" onchange="changeDifficulty()" style="padding: 4px 8px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 12px; background: white; color: #1e293b; font-weight: 500;">
+    <div class="top-nav-left">
+      <label for="difficultySelect" style="font-size: 12px; font-weight: 600; color: #475569; white-space: nowrap;">難易度:</label>
+      <select id="difficultySelect" onchange="changeDifficulty()" style="padding: 5px 8px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 12px; background: white; color: #1e293b; font-weight: 500; outline: none; max-width: 155px; text-overflow: ellipsis;">
         <option value="0">🎲 おまかせ</option>
         <option value="1">★☆☆☆☆ 500点 (基礎)</option>
         <option value="2">★★☆☆☆ 600点 (標準)</option>
@@ -652,12 +756,12 @@
         <option value="5">★★★★★ 900点+ (難関)</option>
       </select>
     </div>
-    <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
-      <button class="nav-btn" onclick="openHistoryModal()" id="btnHistoryNav" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd; font-weight: 600;">
+    <div class="top-nav-right">
+      <button class="nav-btn" onclick="openHistoryModal()" id="btnHistoryNav" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">
         📜 履歴 (<span id="historyNavSummary">0/0</span>)
       </button>
-      <button class="nav-btn" onclick="toggleSettings()">⚙️ 設定</button>
-      <button class="nav-btn" onclick="promptApiKey()">🔑 APIキー</button>
+      <button class="nav-icon-btn" onclick="toggleSettings()" title="音声設定" aria-label="設定">⚙️</button>
+      <button class="nav-icon-btn" onclick="promptApiKey()" title="APIキー設定" aria-label="APIキー">🔑</button>
     </div>
   </div>
 
@@ -793,7 +897,7 @@
   <div class="card chat-card" id="chatCard">
     <div class="chat-header" onclick="toggleChat()">
       <div style="display: flex; align-items: center; gap: 8px;">
-        <img src="favicon.png" alt="Mentor Cat" style="width: 22px; height: 22px; border-radius: 6px; object-fit: cover; vertical-align: middle;">
+        <span style="font-size: 16px;">💬</span>
         <strong style="font-size: 14px; color: #1e293b;">AI講師（キャット先生）に質問する</strong>
       </div>
       <span id="chatToggleIcon" style="font-size: 12px; color: #64748b; font-weight: 600;">開く ▼</span>
@@ -809,8 +913,14 @@
 
       <!-- チャット履歴 -->
       <div class="chat-messages" id="chatMessages">
-        <div class="chat-bubble ai">
-          🐾 こんにちは！TOEIC AI Mentorの専任講師キャットです。問題の解法や単語のニュアンス、選択肢の引っ掛け理由など、分からないことがあれば何でも聞いてくださいね！
+        <div class="chat-row ai">
+          <img class="chat-avatar" src="cat_teacher.png" alt="メンター先生">
+          <div class="chat-col">
+            <span class="chat-sender-name">メンター先生（講師）</span>
+            <div class="chat-bubble">
+              🐾 こんにちは！TOEIC AI Mentorの専任講師です。問題の解法や単語のニュアンス、選択肢の引っ掛け理由など、分からないことがあれば何でも気軽に聞いてくださいね！
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1689,7 +1799,7 @@
         (B) ${currentQ.choices.B} <span style="color:#64748b;">(${currentQ.trans_choices.B})</span><br>
         (C) ${currentQ.choices.C} <span style="color:#64748b;">(${currentQ.trans_choices.C})</span><br><br>
         <strong>【解説】</strong><br>
-        <span>${currentQ.explanation}</span>
+        <span>${formatChatMarkdown(currentQ.explanation)}</span>
       `;
     } else {
       const completedSentence = currentQ.sentence.replace("________", `<strong>${currentQ.choices[currentQ.answer]}</strong>`);
@@ -1713,7 +1823,7 @@
         (C) ${currentQ.choices.C}<br>
         (D) ${currentQ.choices.D}<br><br>
         <strong>【解説】</strong><br>
-        <span>${currentQ.explanation}</span>
+        <span>${formatChatMarkdown(currentQ.explanation)}</span>
       `;
     }
 
@@ -1721,14 +1831,63 @@
     recordQuestionAnswer(selected, isCorrect);
   }
 
-  // --- AI講師チャット機能 ---
+  // --- AI講師チャット機能（LINE風アバター付き & 日本語Markdown完全対応） ---
+  function formatChatMarkdown(text) {
+    if (!text) return "";
+
+    // 1. 日本語Markdown特有のintra-word問題対策（助詞や括弧が直結していても確実に太字・斜体化）
+    let processed = text
+      .replace(/\*\*\*([^\*\n]+?)\*\*\*/g, "<strong><em>$1</em></strong>")
+      .replace(/\*\*([^\*\n]+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/__([^_\n]+?)__/g, "<strong>$1</strong>")
+      .replace(/\*([^\*\n\s]+?)\*/g, "<em>$1</em>");
+
+    // 2. marked.js が読み込まれている場合はパースを実行
+    if (typeof marked !== "undefined" && marked.parse) {
+      try {
+        return marked.parse(processed, { breaks: true });
+      } catch (e) {
+        console.warn("marked.parse error:", e);
+      }
+    }
+
+    // 3. marked未読込時・フォールバック
+    return processed
+      .replace(/`([^`\n]+)`/g, "<code>$1</code>")
+      .replace(/^[\*\-]\s+(.*)$/gm, "<li>$1</li>")
+      .replace(/^\d+\.\s+(.*)$/gm, "<li>$1</li>")
+      .replace(/\n/g, "<br>");
+  }
+
   function appendChatBubble(role, text, id) {
     const container = document.getElementById("chatMessages");
-    const bubble = document.createElement("div");
-    bubble.className = `chat-bubble ${role}`;
-    if (id) bubble.id = id;
-    bubble.innerHTML = text.replace(/\n/g, "<br>");
-    container.appendChild(bubble);
+    const row = document.createElement("div");
+    row.className = `chat-row ${role}`;
+    if (id) row.id = id;
+
+    const formattedContent = role === "ai" 
+      ? formatChatMarkdown(text)
+      : text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>");
+
+    if (role === "ai") {
+      row.innerHTML = `
+        <img class="chat-avatar" src="cat_teacher.png" alt="メンター先生">
+        <div class="chat-col">
+          <span class="chat-sender-name">メンター先生（講師）</span>
+          <div class="chat-bubble">${formattedContent}</div>
+        </div>
+      `;
+    } else {
+      row.innerHTML = `
+        <div class="chat-col">
+          <span class="chat-sender-name">あなた</span>
+          <div class="chat-bubble">${formattedContent}</div>
+        </div>
+        <img class="chat-avatar" src="cat_student.png" alt="あなた">
+      `;
+    }
+
+    container.appendChild(row);
     container.scrollTop = container.scrollHeight;
   }
 
@@ -1774,7 +1933,7 @@
       }
     }
 
-    const systemPrompt = `あなたは親切で分かりやすいTOEIC専門のプロAI講師です。
+    const systemPrompt = `あなたは親切で分かりやすいTOEIC専門のプロAI講師（猫のメンター先生）です。
 生徒（学習者）からの質問に対して、丁寧かつ端的に分かりやすく日本語で回答してください。
 ${contextStr}
 回答は親しみやすく、かつTOEICスコアアップに直結するアドバイス（品詞の見分け方、コロケーション、消去法のコツなど）を含めてください。`;
@@ -1804,7 +1963,10 @@ ${contextStr}
       chatHistory.push({ role: "model", parts: [{ text: reply }] });
 
       const elem = document.getElementById(thinkingId);
-      if (elem) elem.innerHTML = reply.replace(/\n/g, "<br>");
+      if (elem) {
+        const bubble = elem.querySelector(".chat-bubble");
+        if (bubble) bubble.innerHTML = formatChatMarkdown(reply);
+      }
 
       const container = document.getElementById("chatMessages");
       container.scrollTop = container.scrollHeight;
@@ -1812,7 +1974,10 @@ ${contextStr}
     } catch (err) {
       console.error(err);
       const elem = document.getElementById(thinkingId);
-      if (elem) elem.textContent = `エラーが発生しました: ${err.message}`;
+      if (elem) {
+        const bubble = elem.querySelector(".chat-bubble");
+        if (bubble) bubble.textContent = `エラーが発生しました: ${err.message}`;
+      }
     }
   }
 
