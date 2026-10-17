@@ -820,34 +820,26 @@
   }
 
   function getChoicesText() {
-    return `A. ${currentQ.choices.A}. B. ${currentQ.choices.B}. C. ${currentQ.choices.C}.`;
+    return `A, ${currentQ.choices.A}. B, ${currentQ.choices.B}. C, ${currentQ.choices.C}.`;
   }
 
-  // TOEIC本番同様に「A」→（0.6秒ポーズ）→「設問」→（1.0秒ポーズ）→「B」…と明確に区切って読み上げ
+  // 選択肢の読み上げ：A・B・Cを1問ずつ、記号の後に自然な間（カンマポーズ）を空けて順次再生
   function speakChoicesWebSpeech(callback) {
-    const sequence = [
-      { text: "A", delayAfter: 600 },
-      { text: currentQ.choices.A, delayAfter: 1000 },
-      { text: "B", delayAfter: 600 },
-      { text: currentQ.choices.B, delayAfter: 1000 },
-      { text: "C", delayAfter: 600 },
-      { text: currentQ.choices.C, delayAfter: 0 }
+    const list = [
+      `A, ${currentQ.choices.A}`,
+      `B, ${currentQ.choices.B}`,
+      `C, ${currentQ.choices.C}`
     ];
 
     let idx = 0;
     function playNext() {
-      if (idx >= sequence.length) {
+      if (idx >= list.length) {
         if (callback) callback();
         return;
       }
-      const item = sequence[idx];
-      speakWebSpeech(item.text, currentMeta.cGender, () => {
+      speakWebSpeech(list[idx], currentMeta.cGender, () => {
         idx++;
-        if (item.delayAfter > 0) {
-          audioTimer = setTimeout(playNext, Math.max(300, Math.round(item.delayAfter / playbackSpeed)));
-        } else {
-          playNext();
-        }
+        audioTimer = setTimeout(playNext, Math.max(400, Math.round(1000 / playbackSpeed)));
       });
     }
     playNext();
