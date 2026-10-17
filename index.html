@@ -400,6 +400,221 @@
       border-radius: 10px;
       white-space: nowrap;
     }
+
+    /* 履歴モーダル */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-container {
+      background: #ffffff;
+      width: 100%;
+      max-width: 680px;
+      max-height: 85vh;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f8fafc;
+    }
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-close-btn {
+      background: #e2e8f0;
+      border: none;
+      color: #475569;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close-btn:hover {
+      background: #cbd5e1;
+      color: #0f172a;
+    }
+    .history-tabs {
+      display: flex;
+      background: #f1f5f9;
+      padding: 6px 12px;
+      gap: 8px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .history-tab-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .history-tab-btn.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+    .history-stats-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background: #ffffff;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 13px;
+      color: #475569;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .history-stats-pill {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .btn-reset-history {
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-reset-history:hover {
+      background: #fca5a5;
+    }
+    .history-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+    }
+    .history-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .history-card {
+      background: #ffffff;
+      border-radius: 14px;
+      border: 1px solid #e2e8f0;
+      padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .history-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .history-result-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .history-result-badge.correct {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .history-result-badge.incorrect {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .history-card-q {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1e293b;
+      line-height: 1.5;
+    }
+    .history-card-trans {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .history-card-choices {
+      font-size: 12px;
+      color: #334155;
+      background: #f8fafc;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #f1f5f9;
+      line-height: 1.6;
+    }
+    .history-card-exp {
+      font-size: 12px;
+      color: #475569;
+      border-top: 1px dashed #e2e8f0;
+      padding-top: 8px;
+      margin-top: 2px;
+      line-height: 1.5;
+    }
+    .history-voice-btn {
+      align-self: flex-start;
+      background: #e0e7ff;
+      color: #4338ca;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s;
+    }
+    .history-voice-btn:hover {
+      background: #c7d2fe;
+    }
   </style>
 </head>
 <body>
@@ -427,9 +642,49 @@
         <option value="5">★★★★★ 900点+ (難関)</option>
       </select>
     </div>
-    <div style="display: flex; gap: 4px;">
+    <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+      <button class="nav-btn" onclick="openHistoryModal()" id="btnHistoryNav" style="background: #e0f2fe; color: #0369a1; border-color: #bae6fd; font-weight: 600;">
+        📜 履歴 (<span id="historyNavSummary">0/0</span>)
+      </button>
       <button class="nav-btn" onclick="toggleSettings()">⚙️ 設定</button>
       <button class="nav-btn" onclick="promptApiKey()">🔑 APIキー</button>
+    </div>
+  </div>
+
+  <!-- 演習履歴モーダル -->
+  <div class="modal-overlay" id="historyModal" onclick="closeHistoryModalOnBackdrop(event)">
+    <div class="modal-container" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>📜 学習演習履歴</span>
+          <span style="font-size: 12px; color: #64748b; font-weight: normal;">(各最大100問保持)</span>
+        </div>
+        <button class="modal-close-btn" onclick="closeHistoryModal()">✕</button>
+      </div>
+
+      <!-- 履歴タブ切替 -->
+      <div class="history-tabs">
+        <button class="history-tab-btn active" id="historyTabListening" onclick="switchHistoryTab('listening')">
+          🎧 リスニング (<span id="historyListeningBadge">0/100</span>)
+        </button>
+        <button class="history-tab-btn" id="historyTabReading" onclick="switchHistoryTab('reading')">
+          📖 リーディング (<span id="historyReadingBadge">0/100</span>)
+        </button>
+      </div>
+
+      <!-- 統計サマリー & リセット -->
+      <div class="history-stats-bar">
+        <div id="historyStatsText">
+          解答数: <span class="history-stats-pill" id="historyCount">0</span>問 | 
+          正答率: <span class="history-stats-pill" id="historyAccuracy">0%</span>
+        </div>
+        <button class="btn-reset-history" onclick="confirmResetHistory()">🗑️ 履歴をリセット</button>
+      </div>
+
+      <!-- リスト一覧 -->
+      <div class="history-list" id="historyList">
+        <!-- JSで動的レンダリング -->
+      </div>
     </div>
   </div>
 
@@ -953,12 +1208,275 @@
     }
   }
 
-  // Gemini API呼び出し（リトライ付き）
+  // ETS公式13分野に基づくPart 2向けシチュエーション（日常会話・同僚同士・食事・交通・オフィス雑談が約4割）
+  const PART2_CONTEXTS = [
+    "Dining Out & Break: lunch invitations, cafeteria menu, coffee runs, splitting the bill, trying a new cafe",
+    "Casual Colleague Chat: weather forecast, weekend plans, lost umbrellas or badges, commuting, elevator repairs",
+    "Travel & Transit: taking the subway, sharing a taxi, train platform changes, airport boarding, flight arrivals",
+    "Office Logistics & Equipment: projector cables, paper jam in copier, conference room bookings, room temperature",
+    "Appointments & Schedules: meeting rescheduling, doctor/dentist appointments, flight delays, calendar conflicts",
+    "Shopping & Retail: store opening hours, receipt inquiries, returns/exchanges, parcel delivery notifications",
+    "Events & Social: retirement party attendance, exhibition passes, concert tickets, company picnic arrangements",
+    "General Workplace Requests: proofreading a document, borrowing a laptop charger, sending meeting minutes"
+  ];
+
+  // ETS公式13分野に基づくPart 5向けシチュエーション（社内告知、顧客レター、店舗案内、求人票など）
+  const PART5_CONTEXTS = [
+    "Retail & Customer Notices: store return policies, seasonal discount promotions, order tracking updates, warranties",
+    "Workplace Announcements: staff training workshops, health benefits enrollment, parking regulations, holiday closures",
+    "Travel & Hospitality: flight departure gate changes, hotel check-in policies, luggage allowances, train schedule shifts",
+    "Employment & HR: candidate qualifications, interview schedules, job postings, performance reviews, retirements",
+    "General Business & Finance: quarterly earnings summaries, annual shareholder reports, vendor contracts, budget guidelines",
+    "Corporate Facilities: office renovation updates, cafeteria catering services, IT network maintenance schedules",
+    "Community & Culture: art gallery exhibition openings, charity fundraising events, local business award ceremonies"
+  ];
+
+  const PART2_QUESTION_TYPES = [
+    "Suggestion or invitation (e.g. Why don't we..., Would you like to join...)",
+    "Indirect Wh-question (Where, When, Who, Why, How, Which)",
+    "Conversational remark requiring reaction or confirmation",
+    "Alternative choice question (Would you prefer A or B)",
+    "Negative or tag question (Isn't the meeting room free? / We're ready, aren't we?)",
+    "Yes/No question with an indirect, conversational answer",
+    "Polite request with modal verbs (Could you please..., Would you mind...)"
+  ];
+
+  const PART5_FOCUS_TYPES = [
+    "Parts of speech: Adjective vs Adverb ending in -ly",
+    "Parts of speech: Noun form vs Verb form vs Participle (-ing / -ed)",
+    "Vocabulary: Business verbs with prepositions (comply with, rely on, adhere to, refrain from)",
+    "Vocabulary: Precise business adjectives (thorough, confidential, tentative, feasible, substantial)",
+    "Grammar: Conjunctions vs Prepositions (Although vs Despite, Because vs Due to, Unless vs Without)",
+    "Grammar: Relative pronouns (who, which, whose, that, whoever, whichever)",
+    "Grammar: Subject-verb agreement with compound or modifier-heavy subjects",
+    "Grammar: Passive vs Active voice with modal verbs or perfect tense",
+    "Grammar: Conditional clauses and subjunctive mood (If provided that, In the event that)"
+  ];
+
+  // LR最大100問の学習履歴管理システム & 重複防止連携
+  const HISTORY_KEY_LISTENING = "TOEIC_FULL_HISTORY_LISTENING_V1";
+  const HISTORY_KEY_READING = "TOEIC_FULL_HISTORY_READING_V1";
+  const MAX_HISTORY_ITEMS = 100;
+
+  function getHistoryList(mode) {
+    try {
+      const key = mode === "listening" ? HISTORY_KEY_LISTENING : HISTORY_KEY_READING;
+      const saved = localStorage.getItem(key);
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      console.warn("履歴読み込み失敗:", e);
+      return [];
+    }
+  }
+
+  function saveHistoryList(mode, list) {
+    try {
+      const key = mode === "listening" ? HISTORY_KEY_LISTENING : HISTORY_KEY_READING;
+      localStorage.setItem(key, JSON.stringify(list));
+      updateHistoryNavBadge();
+    } catch (e) {
+      console.warn("履歴保存失敗:", e);
+    }
+  }
+
+  function recordQuestionAnswer(selected, isCorrect) {
+    if (!currentQ) return;
+    const now = new Date();
+    const dateStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const list = getHistoryList(currentMode);
+    const item = {
+      id: "rec_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
+      date: dateStr,
+      mode: currentMode,
+      question: currentQ,
+      selectedAnswer: selected,
+      isCorrect: isCorrect,
+      duration: currentMode === "reading" ? readingSeconds : null
+    };
+    list.unshift(item);
+    if (list.length > MAX_HISTORY_ITEMS) {
+      list.length = MAX_HISTORY_ITEMS;
+    }
+    saveHistoryList(currentMode, list);
+  }
+
+  // 重複防止用ブラックリスト（直近出題された問題文テキスト最大30問）
+  function getAntiDuplicationHistory(mode) {
+    const list = getHistoryList(mode);
+    const texts = [];
+    for (let i = 0; i < Math.min(list.length, 30); i++) {
+      const q = list[i].question;
+      if (mode === "listening" && q.question) texts.push(q.question);
+      if (mode === "reading" && q.sentence) texts.push(q.sentence);
+    }
+    return texts;
+  }
+
+  // 履歴モーダルUI・タブ・レンダリング・リセット
+  let currentHistoryTab = "listening";
+
+  function updateHistoryNavBadge() {
+    const lList = getHistoryList("listening");
+    const rList = getHistoryList("reading");
+    const summaryElem = document.getElementById("historyNavSummary");
+    if (summaryElem) {
+      summaryElem.textContent = `L:${lList.length} / R:${rList.length}`;
+    }
+    const lBadge = document.getElementById("historyListeningBadge");
+    if (lBadge) lBadge.textContent = `${lList.length}/100`;
+    const rBadge = document.getElementById("historyReadingBadge");
+    if (rBadge) rBadge.textContent = `${rList.length}/100`;
+  }
+
+  function openHistoryModal() {
+    currentHistoryTab = currentMode;
+    switchHistoryTab(currentHistoryTab);
+    document.getElementById("historyModal").classList.add("active");
+  }
+
+  function closeHistoryModal() {
+    document.getElementById("historyModal").classList.remove("active");
+    window.speechSynthesis.cancel();
+  }
+
+  function closeHistoryModalOnBackdrop(event) {
+    if (event.target.id === "historyModal") {
+      closeHistoryModal();
+    }
+  }
+
+  function switchHistoryTab(tab) {
+    currentHistoryTab = tab;
+    document.getElementById("historyTabListening").classList.toggle("active", tab === "listening");
+    document.getElementById("historyTabReading").classList.toggle("active", tab === "reading");
+    renderHistoryList();
+  }
+
+  function confirmResetHistory() {
+    const ok = confirm("これまでの演習履歴（リスニング・リーディングの全記録、最大100問）をすべてリセットしますか？\n※この操作は取り消せません。");
+    if (!ok) return;
+    localStorage.removeItem(HISTORY_KEY_LISTENING);
+    localStorage.removeItem(HISTORY_KEY_READING);
+    localStorage.removeItem("toeic_recent_questions_v2");
+    updateHistoryNavBadge();
+    renderHistoryList();
+    alert("履歴をリセットしました。新たなサイクルで演習を開始できます。");
+  }
+
+  function replayHistoryAudio(encodedText) {
+    const text = decodeURIComponent(encodedText);
+    speakWebSpeech(text, "female");
+  }
+
+  function renderHistoryList() {
+    updateHistoryNavBadge();
+    const list = getHistoryList(currentHistoryTab);
+    const container = document.getElementById("historyList");
+    const countElem = document.getElementById("historyCount");
+    const accElem = document.getElementById("historyAccuracy");
+
+    countElem.textContent = list.length;
+    if (list.length === 0) {
+      accElem.textContent = "0%";
+      container.innerHTML = `
+        <div class="history-empty">
+          <div style="font-size: 32px; margin-bottom: 8px;">📭</div>
+          まだ${currentHistoryTab === "listening" ? "リスニング" : "リーディング"}の演習履歴がありません。<br>
+          「問題を開始する」を押して学習を始めましょう！
+        </div>
+      `;
+      return;
+    }
+
+    const correctCount = list.filter(item => item.isCorrect).length;
+    const accuracy = Math.round((correctCount / list.length) * 100);
+    accElem.textContent = `${accuracy}% (${correctCount}/${list.length}問正解)`;
+
+    container.innerHTML = list.map((item, index) => {
+      const q = item.question;
+      const isCorrect = item.isCorrect;
+      const resultBadge = isCorrect
+        ? `<span class="history-result-badge correct">⭕ 正解 (選んだ回答: ${item.selectedAnswer})</span>`
+        : `<span class="history-result-badge incorrect">❌ 不正解 (あなたの回答: ${item.selectedAnswer} / 正解: ${q.answer})</span>`;
+
+      const diffBadge = q.difficulty_label ? `<span class="badge-difficulty" style="font-size: 11px;">${q.difficulty_label}</span>` : "";
+
+      if (item.mode === "listening") {
+        const fullAudioText = `${q.question}. A, ${q.choices.A}. B, ${q.choices.B}. C, ${q.choices.C}.`;
+        return `
+          <div class="history-card">
+            <div class="history-card-header">
+              <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b;">#${list.length - index}</span>
+                ${resultBadge}
+                ${diffBadge}
+              </div>
+              <span style="font-size: 11px; color: #94a3b8;">${item.date}</span>
+            </div>
+            <div class="history-card-q">
+              Q: ${q.question}
+            </div>
+            <div class="history-card-trans">${q.trans_q || ''}</div>
+            <div class="history-card-choices">
+              <div><strong>(A)</strong> ${q.choices.A} ${q.answer === 'A' ? '✅' : ''} <span style="color:#64748b;">(${q.trans_choices?.A || ''})</span></div>
+              <div><strong>(B)</strong> ${q.choices.B} ${q.answer === 'B' ? '✅' : ''} <span style="color:#64748b;">(${q.trans_choices?.B || ''})</span></div>
+              <div><strong>(C)</strong> ${q.choices.C} ${q.answer === 'C' ? '✅' : ''} <span style="color:#64748b;">(${q.trans_choices?.C || ''})</span></div>
+            </div>
+            <div class="history-card-exp">
+              <strong>【解説】</strong> ${q.explanation || ''}
+            </div>
+            <button class="history-voice-btn" onclick="replayHistoryAudio('${encodeURIComponent(fullAudioText).replace(/'/g, "%27")}')">
+              🔊 音声を復習再生
+            </button>
+          </div>
+        `;
+      } else {
+        const completed = q.sentence.replace("________", `<strong>${q.choices[q.answer]}</strong>`);
+        const cleanCompleted = q.sentence.replace("________", q.choices[q.answer]);
+        const durText = item.duration != null ? `<span style="font-size: 11px; color: #64748b;">⏱️ ${item.duration}秒</span>` : "";
+        return `
+          <div class="history-card">
+            <div class="history-card-header">
+              <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b;">#${list.length - index}</span>
+                ${resultBadge}
+                <span class="badge-part" style="font-size: 10px;">${q.category || 'Part 5'}</span>
+                ${diffBadge}
+                ${durText}
+              </div>
+              <span style="font-size: 11px; color: #94a3b8;">${item.date}</span>
+            </div>
+            <div class="history-card-q" style="font-size: 14px;">
+              ${completed}
+            </div>
+            <div class="history-card-trans">${q.trans || ''}</div>
+            <div class="history-card-choices">
+              <div>(A) ${q.choices.A} ${q.answer === 'A' ? '✅' : ''}</div>
+              <div>(B) ${q.choices.B} ${q.answer === 'B' ? '✅' : ''}</div>
+              <div>(C) ${q.choices.C} ${q.answer === 'C' ? '✅' : ''}</div>
+              <div>(D) ${q.choices.D} ${q.answer === 'D' ? '✅' : ''}</div>
+            </div>
+            <div class="history-card-exp">
+              <strong>【解説】</strong> ${q.explanation || ''}
+            </div>
+            <button class="history-voice-btn" onclick="replayHistoryAudio('${encodeURIComponent(cleanCompleted).replace(/'/g, "%27")}')">
+              🔊 完成文を再生
+            </button>
+          </div>
+        `;
+      }
+    }).join("");
+  }
+
+  // Gemini API呼び出し（リトライ付き & 高多様性温度設定）
   async function callGemini(promptText) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`;
     const payload = {
       contents: [{ parts: [{ text: promptText }] }],
-      generationConfig: { responseMimeType: "application/json" }
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.95
+      }
     };
 
     let res = await fetch(url, {
@@ -1017,16 +1535,32 @@
     resolveSpeakers();
 
     try {
+      const history = getAntiDuplicationHistory(currentMode);
+      const randomSeed = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+
       if (currentMode === "listening") {
+        const scenario = PART2_CONTEXTS[Math.floor(Math.random() * PART2_CONTEXTS.length)];
+        const qType = PART2_QUESTION_TYPES[Math.floor(Math.random() * PART2_QUESTION_TYPES.length)];
+        const historyNotice = history.length > 0
+          ? `STRICT ANTI-DUPLICATION RULE: The following questions have been used recently. You MUST NOT reuse or produce anything conceptually similar to them:\n${history.map(q => `- "${q}"`).join('\n')}`
+          : "";
+
         const promptText = `
-          You are an expert TOEIC test maker. Create ONE Part 2 (Question-Response) item in business context.
+          You are an expert TOEIC test maker. Create ONE UNIQUE, FRESH Part 2 (Question-Response) item.
+          Situation Category: ${scenario}
+          Question Structure Type: ${qType}
+          Random Context Seed: ${randomSeed}
           ${getDifficultyPromptText()}
+          ${historyNotice}
+          Requirements:
+          - Reflect authentic TOEIC Part 2 conversational English: natural everyday interactions among colleagues, dining out, transport, equipment requests, or schedules.
+          - Avoid repetitive tropes (e.g. flight delay, expense report submission) unless given a fresh, natural twist.
           Output ONLY a pure JSON without markdown codeblock:
           {
             "question": "English question text",
             "choices": { "A": "...", "B": "...", "C": "..." },
             "answer": "A or B or C",
-            "difficulty": 1,
+            "difficulty": 2,
             "difficulty_label": "★★☆☆☆ (600点レベル)",
             "trans_q": "Japanese translation of question",
             "trans_choices": { "A": "...", "B": "...", "C": "..." },
@@ -1061,10 +1595,22 @@
         playAll();
 
       } else {
+        const scenario = PART5_CONTEXTS[Math.floor(Math.random() * PART5_CONTEXTS.length)];
+        const focus = PART5_FOCUS_TYPES[Math.floor(Math.random() * PART5_FOCUS_TYPES.length)];
+        const historyNotice = history.length > 0
+          ? `STRICT ANTI-DUPLICATION RULE: The following sentences have been used recently. You MUST NOT reuse or produce anything conceptually similar to them:\n${history.map(q => `- "${q}"`).join('\n')}`
+          : "";
+
         const promptText = `
-          You are an expert TOEIC test maker. Create ONE Part 5 (Incomplete Sentences) question in a professional business context.
-          Include a sentence with a blank marked as "________". Provide 4 choices (A, B, C, D) testing grammar, parts of speech, vocabulary, or prepositions with realistic distractors.
+          You are an expert TOEIC test maker. Create ONE UNIQUE, FRESH Part 5 (Incomplete Sentences) item in an authentic TOEIC context (notices, customer service, announcements, travel, workplace memos).
+          Document Context: ${scenario}
+          Grammar/Vocabulary Focus: ${focus}
+          Random Context Seed: ${randomSeed}
+          Include a sentence with a blank marked as "________". Provide 4 choices (A, B, C, D) testing this focus with realistic distractors.
           ${getDifficultyPromptText()}
+          ${historyNotice}
+          Requirements:
+          - Ensure the sentence sounds like real TOEIC reading material across retail, travel, facilities, announcements, or HR.
           Output ONLY a pure JSON without markdown:
           {
             "sentence": "English sentence with ________ blank",
@@ -1162,6 +1708,7 @@
     }
 
     document.getElementById("resultArea").classList.add("show");
+    recordQuestionAnswer(selected, isCorrect);
   }
 
   // --- AI講師チャット機能 ---
@@ -1262,6 +1809,7 @@ ${contextStr}
   // 初回起動
   window.onload = () => {
     initSettingsUI();
+    updateHistoryNavBadge();
   };
 </script>
 </body>
