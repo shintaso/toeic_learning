@@ -1340,15 +1340,24 @@
     "General Workplace Requests: proofreading a document, borrowing a laptop charger, sending meeting minutes"
   ];
 
-  // ETS公式13分野に基づくPart 5向けシチュエーション（社内告知、顧客レター、店舗案内、求人票など）
+  // ETS公式出題基準に基づくPart 5向けシチュエーション（多様な業界・職種・シチュエーション16分野網羅）
   const PART5_CONTEXTS = [
-    "Retail & Customer Notices: store return policies, seasonal discount promotions, order tracking updates, warranties",
-    "Workplace Announcements: staff training workshops, health benefits enrollment, parking regulations, holiday closures",
-    "Travel & Hospitality: flight departure gate changes, hotel check-in policies, luggage allowances, train schedule shifts",
-    "Employment & HR: candidate qualifications, interview schedules, job postings, performance reviews, retirements",
-    "General Business & Finance: quarterly earnings summaries, annual shareholder reports, vendor contracts, budget guidelines",
-    "Corporate Facilities: office renovation updates, cafeteria catering services, IT network maintenance schedules",
-    "Community & Culture: art gallery exhibition openings, charity fundraising events, local business award ceremonies"
+    "Retail & Merchandising: seasonal inventory clearance, return policies, supplier quality standards, warranties",
+    "Corporate Governance & Legal: shareholder meetings, non-disclosure agreements, compliance audits, patent filings",
+    "Healthcare & Pharmaceuticals: clinical trial approvals, hospital equipment upgrades, patient data privacy",
+    "Information Technology: cloud data migration, cybersecurity protocols, software licensing, system downtime notices",
+    "Real Estate & Facility Management: commercial lease terms, building safety inspections, energy-efficiency retrofits",
+    "Supply Chain & Logistics: international freight customs, warehouse automation, shipment tracking, cargo routing",
+    "Human Resources & Talent: employee wellness benefits, performance evaluations, recruitment fairs, onboarding guidelines",
+    "Financial Services & Accounting: quarterly revenue reporting, expense reimbursement policies, tax audit preparations",
+    "Travel, Aviation & Hospitality: hotel booking cancellations, flight reschedule notifications, conference hall reservations",
+    "Manufacturing & Quality Assurance: assembly line maintenance, defect rate reduction, equipment calibration",
+    "Marketing, PR & Advertising: product launch press releases, customer satisfaction surveys, brand identity redesign",
+    "Environmental & Energy Initiatives: renewable energy adoption, waste reduction targets, emission compliance",
+    "Publishing & Media: editorial guidelines, copyright permissions, digital subscription terms, publication schedules",
+    "Customer Support & Client Relations: service level agreements, client feedback resolution, helpline operating hours",
+    "Community Outreach & CSR: charity foundation sponsorships, regional business awards, volunteer programs",
+    "Education & Professional Development: executive seminars, language proficiency certification, accreditation renewals"
   ];
 
   const PART2_QUESTION_TYPES = [
@@ -1361,16 +1370,37 @@
     "Polite request with modal verbs (Could you please..., Would you mind...)"
   ];
 
+  // Part 5 出題パターン（品詞・語彙・文法・機能語の幅広い網羅 & 偏り防止 24パターン）
   const PART5_FOCUS_TYPES = [
-    "Parts of speech: Adjective vs Adverb ending in -ly",
-    "Parts of speech: Noun form vs Verb form vs Participle (-ing / -ed)",
-    "Vocabulary: Business verbs with prepositions (comply with, rely on, adhere to, refrain from)",
-    "Vocabulary: Precise business adjectives (thorough, confidential, tentative, feasible, substantial)",
-    "Grammar: Conjunctions vs Prepositions (Although vs Despite, Because vs Due to, Unless vs Without)",
-    "Grammar: Relative pronouns (who, which, whose, that, whoever, whichever)",
-    "Grammar: Subject-verb agreement with compound or modifier-heavy subjects",
-    "Grammar: Passive vs Active voice with modal verbs or perfect tense",
-    "Grammar: Conditional clauses and subjunctive mood (If provided that, In the event that)"
+    // 品詞識別 (Parts of Speech)
+    "Parts of Speech: Adjective modifying a preceding or following noun (evaluative, technical, or descriptive)",
+    "Parts of Speech: Adverb of manner or degree modifying an adjective, verb, or passive participle",
+    "Parts of Speech: Abstract noun or agent noun following a determiner, possessive, or preposition",
+    "Parts of Speech: Participle choice (active present participle -ing vs passive past participle -ed)",
+    "Parts of Speech: Correct grammatical form of the main finite verb (tense, number agreement, or voice)",
+
+    // 語彙 (Vocabulary)
+    "Vocabulary (Business Action Verbs): Operations, negotiations, authorizations, delegations, or renewals",
+    "Vocabulary (Business Management Nouns): Strategies, metrics, constraints, guidelines, initiatives, or milestones",
+    "Vocabulary (Evaluative Business Adjectives): Feasibility, reliability, urgency, eligibility, or comprehensiveness",
+    "Vocabulary (Time & Transition Adverbs): Progression, frequency, sequence, or scope",
+    "Vocabulary (Prepositional Collocations): Fixed two-to-three word business prepositional phrases",
+    "Vocabulary (Verb-Noun Collocations): Natural corporate verb-noun pairings (meet expectations, address concerns, etc.)",
+    "Vocabulary (Business Compound Expressions): Professional idioms and set collocations used in modern workplace",
+
+    // 文法・機能語 (Grammar & Functional Words)
+    "Grammar: Subordinating Conjunction vs Preposition (identifying clauses requiring S+V vs noun phrase objects)",
+    "Grammar: Conjunctive Adverbs (transitional sentence connectors indicating contrast, result, or addition)",
+    "Grammar: Relative Pronouns & Clauses (who, whom, which, whose, that, whichever, whoever)",
+    "Grammar: Indefinite & Reciprocal Pronouns (another, others, the other, each other, one another)",
+    "Grammar: Demonstrative Pronouns for comparison or reference (those who, that of / those of)",
+    "Grammar: Verb Complementation (verbs followed exclusively by to-infinitive vs gerund -ing)",
+    "Grammar: Mandative Subjunctive (verbs of request, recommendation, or urgency requiring base verb in that-clause)",
+    "Grammar: Preposition Distinction (exact temporal usage: by vs until, during vs for, within vs throughout)",
+    "Grammar: Comparative & Superlative Structures (parallel structures, comparative modifiers like significantly/far)",
+    "Grammar: Conditional Clauses & Inversions (omitted 'if' with inverted word order: Should S do, Were it not for)",
+    "Grammar: Subject-Verb Agreement (intervening prepositional phrases, collective nouns, or correlative subjects)",
+    "Grammar: Passive Voice with Perfect Aspect or Modal Verbs (has been approved, must be handled)"
   ];
 
   // LR最大100問の学習履歴管理システム & 重複防止連携
@@ -1424,16 +1454,36 @@
     }
   }
 
-  // 重複防止用ブラックリスト（直近出題された問題文テキスト最大30問）
-  function getAntiDuplicationHistory(mode) {
+  // 重複防止用データ抽出（直近出題された問題文テキスト最大30件 ＆ 正解単語・表現最大30件）
+  function getAntiDuplicationData(mode) {
     const list = getHistoryList(mode);
-    const texts = [];
+    const sentences = [];
+    const answerWords = [];
+
     for (let i = 0; i < Math.min(list.length, 30); i++) {
-      const q = list[i].question;
-      if (mode === "listening" && q.question) texts.push(q.question);
-      if (mode === "reading" && q.sentence) texts.push(q.sentence);
+      const item = list[i];
+      const q = item.question;
+      if (!q) continue;
+
+      if (mode === "listening") {
+        if (q.question) sentences.push(q.question);
+      } else {
+        if (q.sentence) sentences.push(q.sentence);
+        // リーディングの正解単語・表現を抽出
+        let cleanAns = 'A';
+        if (typeof q.answer === 'string') {
+          const match = q.answer.match(/[A-Da-d]/);
+          cleanAns = match ? match[0].toUpperCase() : 'A';
+        }
+        if (q.choices && q.choices[cleanAns]) {
+          const word = q.choices[cleanAns].trim();
+          if (word && !answerWords.includes(word)) {
+            answerWords.push(word);
+          }
+        }
+      }
     }
-    return texts;
+    return { sentences, answerWords };
   }
 
   // 履歴モーダルUI・タブ・レンダリング・リセット
@@ -1712,14 +1762,14 @@
     resolveSpeakers();
 
     try {
-      const history = getAntiDuplicationHistory(currentMode);
+      const dupData = getAntiDuplicationData(currentMode);
       const randomSeed = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
       if (currentMode === "listening") {
         const scenario = PART2_CONTEXTS[Math.floor(Math.random() * PART2_CONTEXTS.length)];
         const qType = PART2_QUESTION_TYPES[Math.floor(Math.random() * PART2_QUESTION_TYPES.length)];
-        const historyNotice = history.length > 0
-          ? `STRICT ANTI-DUPLICATION RULE: The following questions have been used recently. You MUST NOT reuse or produce anything conceptually similar to them:\n${history.map(q => `- "${q}"`).join('\n')}`
+        const historyNotice = dupData.sentences.length > 0
+          ? `STRICT ANTI-DUPLICATION RULE: The following questions have been used recently. You MUST NOT reuse or produce anything conceptually similar to them:\n${dupData.sentences.map(q => `- "${q}"`).join('\n')}`
           : "";
 
         const promptText = `
@@ -1775,21 +1825,35 @@
       } else {
         const scenario = PART5_CONTEXTS[Math.floor(Math.random() * PART5_CONTEXTS.length)];
         const focus = PART5_FOCUS_TYPES[Math.floor(Math.random() * PART5_FOCUS_TYPES.length)];
-        const historyNotice = history.length > 0
-          ? `STRICT ANTI-DUPLICATION RULE: The following sentences have been used recently. You MUST NOT reuse or produce anything conceptually similar to them:\n${history.map(q => `- "${q}"`).join('\n')}`
-          : "";
+
+        let antiDuplicationDirectives = "";
+        if (dupData.answerWords.length > 0) {
+          antiDuplicationDirectives += `
+          STRICT FORBIDDEN RECENT ANSWER WORDS:
+          The following ${dupData.answerWords.length} words/expressions were ALREADY used as the correct answer in recent questions:
+          [ ${dupData.answerWords.map(w => `"${w}"`).join(', ')} ]
+          You are STRICTLY FORBIDDEN from using any of the above words (or their base root words) as the correct answer or as the primary tested vocabulary.
+          `;
+        }
+        if (dupData.sentences.length > 0) {
+          antiDuplicationDirectives += `
+          RECENT SENTENCES ALREADY USED (DO NOT REUSE CONTEXT OR SIMILAR PHRASING):
+          ${dupData.sentences.map(s => `- "${s}"`).join('\n')}
+          `;
+        }
 
         const promptText = `
-          You are an expert TOEIC test maker. Create ONE UNIQUE, FRESH Part 5 (Incomplete Sentences) item in an authentic TOEIC context (notices, customer service, announcements, travel, workplace memos).
-          Document Context: ${scenario}
-          Grammar/Vocabulary Focus: ${focus}
+          You are an expert TOEIC test maker. Create ONE UNIQUE, FRESH Part 5 (Incomplete Sentences) item in an authentic TOEIC context.
+          Target Business Domain: ${scenario}
+          Tested Grammar/Vocabulary Focus: ${focus}
           Random Context Seed: ${randomSeed}
-          Include a sentence with a blank marked as "________". Provide 4 choices (A, B, C, D) testing this focus with realistic distractors.
           ${getDifficultyPromptText()}
-          ${historyNotice}
-          Requirements:
-          - Ensure the sentence sounds like real TOEIC reading material across retail, travel, facilities, announcements, or HR.
-          Output ONLY a pure JSON without markdown:
+          ${antiDuplicationDirectives}
+
+          REQUIREMENTS:
+          1. BALANCED CHOICES: Provide 4 choices (A, B, C, D) precisely testing the specified Grammar/Vocabulary Focus. All 4 choices must be plausible, of similar length, and from the appropriate word family or grammatical category with realistic ETS-standard distractor traps.
+          2. BLANK FORMAT: Include exactly one blank marked as "________".
+          Output ONLY pure JSON without markdown codeblock:
           {
             "sentence": "English sentence with ________ blank",
             "choices": { "A": "...", "B": "...", "C": "...", "D": "..." },
