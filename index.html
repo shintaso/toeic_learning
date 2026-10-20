@@ -1401,23 +1401,27 @@
 
   function recordQuestionAnswer(selected, isCorrect) {
     if (!currentQ) return;
-    const now = new Date();
-    const dateStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const list = getHistoryList(currentMode);
-    const item = {
-      id: "rec_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
-      date: dateStr,
-      mode: currentMode,
-      question: currentQ,
-      selectedAnswer: selected,
-      isCorrect: isCorrect,
-      duration: currentMode === "reading" ? readingSeconds : null
-    };
-    list.unshift(item);
-    if (list.length > MAX_HISTORY_ITEMS) {
-      list.length = MAX_HISTORY_ITEMS;
+    try {
+      const now = new Date();
+      const dateStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      const list = getHistoryList(currentMode);
+      const item = {
+        id: "rec_" + Date.now() + "_" + Math.floor(Math.random() * 10000),
+        date: dateStr,
+        mode: currentMode,
+        question: currentQ,
+        selectedAnswer: selected,
+        isCorrect: isCorrect,
+        duration: currentMode === "reading" ? readingSeconds : null
+      };
+      list.unshift(item);
+      if (list.length > MAX_HISTORY_ITEMS) {
+        list.length = MAX_HISTORY_ITEMS;
+      }
+      saveHistoryList(currentMode, list);
+    } catch (e) {
+      console.warn("recordQuestionAnswer error:", e);
     }
-    saveHistoryList(currentMode, list);
   }
 
   // 重複防止用ブラックリスト（直近出題された問題文テキスト最大30問）
@@ -1621,6 +1625,59 @@
     return JSON.parse(data.candidates[0].content.parts[0].text);
   }
 
+  // Geminiの応答JSONを安全に正規化（大文字化・空白除去・キー補正・アンダースコア統一）
+  function normalizeQuestion(q, mode) {
+    if (!q || typeof q !== "object") return q;
+
+    // 1. answer の正規化 (A, B, C, D 以外の余計な文字を除去して大文字化)
+    if (typeof q.answer === "string") {
+      const match = q.answer.match(/[A-Da-d]/);
+      q.answer = match ? match[0].toUpperCase() : "A";
+    } else {
+      q.answer = "A";
+    }
+
+    // 2. choices のキー正規化 (A, B, C, D に統一)
+    if (q.choices && typeof q.choices === "object") {
+      const norm = {};
+      for (const k of Object.keys(q.choices)) {
+        const cleanK = k.replace(/[\(\)\.\s]/g, "").toUpperCase();
+        norm[cleanK] = q.choices[k];
+      }
+      q.choices = {
+        A: norm.A || "",
+        B: norm.B || "",
+        C: norm.C || "",
+        D: norm.D || ""
+      };
+    } else {
+      q.choices = { A: "", B: "", C: "", D: "" };
+    }
+
+    // 3. trans_choices の安全化 (Part 2)
+    if (q.trans_choices && typeof q.trans_choices === "object") {
+      const normT = {};
+      for (const k of Object.keys(q.trans_choices)) {
+        const cleanK = k.replace(/[\(\)\.\s]/g, "").toUpperCase();
+        normT[cleanK] = q.trans_choices[k];
+      }
+      q.trans_choices = {
+        A: normT.A || "",
+        B: normT.B || "",
+        C: normT.C || ""
+      };
+    } else {
+      q.trans_choices = { A: "", B: "", C: "" };
+    }
+
+    // 4. リーディングの sentence のブランク正規化 (アンダースコア何個でも "________" に統一)
+    if (mode === "reading" && q.sentence) {
+      q.sentence = q.sentence.replace(/_{2,}/g, "________");
+    }
+
+    return q;
+  }
+
   // 「開始」または「次へ」の明示的なクリック時のみ実行される
   async function generateNewQuestion() {
     if (!apiKey) {
@@ -1688,7 +1745,8 @@
           }
         `;
 
-        currentQ = await callGemini(promptText);
+        const rawQ = await callGemini(promptText);
+        currentQ = normalizeQuestion(rawQ, "listening");
         cachedListeningQ = currentQ;
 
         document.getElementById("choiceA").textContent = "(A)";
@@ -1744,7 +1802,8 @@
           }
         `;
 
-        currentQ = await callGemini(promptText);
+        const rawQ = await callGemini(promptText);
+        currentQ = normalizeQuestion(rawQ, "reading");
         cachedReadingQ = currentQ;
 
         const styledSentence = currentQ.sentence.replace("________", '<span class="reading-blank">&nbsp;________&nbsp;</span>');
@@ -1773,62 +1832,103 @@
     answered = true;
     stopReadingTimer();
 
-    const isCorrect = selected === currentQ.answer;
-    const verdict = document.getElementById("verdict");
-    verdict.textContent = isCorrect ? "🎉 正解！" : `❌ 不正解... (正解: ${currentQ.answer})`;
-    verdict.style.color = isCorrect ? "var(--success)" : "var(--error)";
+    try {
+      // 1. selected と answer の徹底的な安全正規化 (A, B, C, D への統一)
+      const cleanSelected = (selected || '').toString().trim().toUpperCase().charAt(0) || 'A';
+      
+      let rawAnswer = currentQ ? currentQ.answer : '';
+      let cleanAnswer = 'A';
+      if (typeof rawAnswer === 'string') {
+        const match = rawAnswer.match(/[A-Da-d]/);
+        cleanAnswer = match ? match[0].toUpperCase() : 'A';
+      }
+      if (currentQ) currentQ.answer = cleanAnswer;
 
-    document.getElementById(`choice${selected}`).classList.add(isCorrect ? "correct" : "incorrect");
-    if (!isCorrect) {
-      document.getElementById(`choice${currentQ.answer}`).classList.add("correct");
+      const isCorrect = cleanSelected === cleanAnswer;
+      const verdict = document.getElementById("verdict");
+      if (verdict) {
+        verdict.textContent = isCorrect ? "🎉 正解！" : `❌ 不正解... (正解: ${cleanAnswer})`;
+        verdict.style.color = isCorrect ? "var(--success)" : "var(--error)";
+      }
+
+      // 2. ボタン要素の安全なクラス更新（null安全）
+      const selectedBtn = document.getElementById(`choice${cleanSelected}`);
+      if (selectedBtn) {
+        selectedBtn.classList.add(isCorrect ? "correct" : "incorrect");
+      }
+      if (!isCorrect) {
+        const correctBtn = document.getElementById(`choice${cleanAnswer}`);
+        if (correctBtn) {
+          correctBtn.classList.add("correct");
+        }
+      }
+
+      const scriptBox = document.getElementById("scriptBox");
+      const diffBadge = currentQ?.difficulty_label ? `<span class="badge-difficulty">難易度: ${currentQ.difficulty_label}</span>` : "";
+
+      if (currentMode === "listening") {
+        const choices = currentQ?.choices || {};
+        const transChoices = currentQ?.trans_choices || {};
+        const explanation = currentQ?.explanation || '';
+
+        if (scriptBox) {
+          scriptBox.innerHTML = `
+            <div style="margin-bottom: 8px;">
+              ${diffBadge}
+            </div>
+            <strong>【問題文】</strong><br>
+            <span>${currentQ?.question || ''}</span><br>
+            <small style="color: #64748b;">${currentQ?.trans_q || ''}</small><br><br>
+            <strong>【選択肢】</strong><br>
+            (A) ${choices.A || ''} <span style="color:#64748b;">(${transChoices.A || ''})</span><br>
+            (B) ${choices.B || ''} <span style="color:#64748b;">(${transChoices.B || ''})</span><br>
+            (C) ${choices.C || ''} <span style="color:#64748b;">(${transChoices.C || ''})</span><br><br>
+            <strong>【解説】</strong><br>
+            <span>${formatChatMarkdown(explanation)}</span>
+          `;
+        }
+      } else {
+        const sentence = currentQ?.sentence || '';
+        const choices = currentQ?.choices || {};
+        const answerWord = choices[cleanAnswer] || '';
+        const completedSentence = sentence.replace(/_{2,}/g, `<strong>${answerWord}</strong>`);
+        reviewTextClean = sentence.replace(/_{2,}/g, answerWord);
+        const paceEvaluation = readingSeconds <= 20 ? "🎉 目標20秒以内達成！" : "💡 本番は20秒以内を目指しましょう";
+        const explanation = currentQ?.explanation || '';
+
+        if (scriptBox) {
+          scriptBox.innerHTML = `
+            <div style="margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+              <span class="badge-part">${currentQ?.category || '文法・語彙'}</span>
+              ${diffBadge}
+              <span style="font-size: 12px; color: #64748b; margin-left: auto;">⏱️ ${readingSeconds}秒 (${paceEvaluation})</span>
+            </div>
+            <strong>【完成文】</strong><br>
+            <span style="font-size: 15px;">${completedSentence}</span><br>
+            <button type="button" class="btn-listen-again" id="btnReviewAudio" onclick="playSentenceAudio()">🔊 音声で復習する</button><br><br>
+            <strong>【日本語訳】</strong><br>
+            <span style="color: #334155;">${currentQ?.trans || ''}</span><br><br>
+            <strong>【選択肢の意味】</strong><br>
+            (A) ${choices.A || ''}<br>
+            (B) ${choices.B || ''}<br>
+            (C) ${choices.C || ''}<br>
+            (D) ${choices.D || ''}<br><br>
+            <strong>【解説】</strong><br>
+            <span>${formatChatMarkdown(explanation)}</span>
+          `;
+        }
+      }
+
+      const resultArea = document.getElementById("resultArea");
+      if (resultArea) resultArea.classList.add("show");
+
+      recordQuestionAnswer(cleanSelected, isCorrect);
+    } catch (err) {
+      console.error("checkAnswer error:", err);
+      // 万一予期せぬ例外が発生しても、必ず次の問題に進めるようresultAreaを表示
+      const resultArea = document.getElementById("resultArea");
+      if (resultArea) resultArea.classList.add("show");
     }
-
-    const scriptBox = document.getElementById("scriptBox");
-    const diffBadge = currentQ.difficulty_label ? `<span class="badge-difficulty">難易度: ${currentQ.difficulty_label}</span>` : "";
-
-    if (currentMode === "listening") {
-      scriptBox.innerHTML = `
-        <div style="margin-bottom: 8px;">
-          ${diffBadge}
-        </div>
-        <strong>【問題文】</strong><br>
-        <span>${currentQ.question}</span><br>
-        <small style="color: #64748b;">${currentQ.trans_q}</small><br><br>
-        <strong>【選択肢】</strong><br>
-        (A) ${currentQ.choices.A} <span style="color:#64748b;">(${currentQ.trans_choices.A})</span><br>
-        (B) ${currentQ.choices.B} <span style="color:#64748b;">(${currentQ.trans_choices.B})</span><br>
-        (C) ${currentQ.choices.C} <span style="color:#64748b;">(${currentQ.trans_choices.C})</span><br><br>
-        <strong>【解説】</strong><br>
-        <span>${formatChatMarkdown(currentQ.explanation)}</span>
-      `;
-    } else {
-      const completedSentence = currentQ.sentence.replace("________", `<strong>${currentQ.choices[currentQ.answer]}</strong>`);
-      reviewTextClean = currentQ.sentence.replace("________", currentQ.choices[currentQ.answer]);
-      const paceEvaluation = readingSeconds <= 20 ? "🎉 目標20秒以内達成！" : "💡 本番は20秒以内を目指しましょう";
-
-      scriptBox.innerHTML = `
-        <div style="margin-bottom: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
-          <span class="badge-part">${currentQ.category || '文法・語彙'}</span>
-          ${diffBadge}
-          <span style="font-size: 12px; color: #64748b; margin-left: auto;">⏱️ ${readingSeconds}秒 (${paceEvaluation})</span>
-        </div>
-        <strong>【完成文】</strong><br>
-        <span style="font-size: 15px;">${completedSentence}</span><br>
-        <button type="button" class="btn-listen-again" id="btnReviewAudio" onclick="playSentenceAudio()">🔊 音声で復習する</button><br><br>
-        <strong>【日本語訳】</strong><br>
-        <span style="color: #334155;">${currentQ.trans}</span><br><br>
-        <strong>【選択肢の意味】</strong><br>
-        (A) ${currentQ.choices.A}<br>
-        (B) ${currentQ.choices.B}<br>
-        (C) ${currentQ.choices.C}<br>
-        (D) ${currentQ.choices.D}<br><br>
-        <strong>【解説】</strong><br>
-        <span>${formatChatMarkdown(currentQ.explanation)}</span>
-      `;
-    }
-
-    document.getElementById("resultArea").classList.add("show");
-    recordQuestionAnswer(selected, isCorrect);
   }
 
   // --- AI講師チャット機能（LINE風アバター付き & 日本語Markdown完全対応） ---
